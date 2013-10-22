@@ -4,7 +4,7 @@
 from twython import TwythonStreamer
 
 # Search terms (Note: hashtags only right now!)
-terms = ['#Justice4Daisy', '#teabaggers']
+terms = ['#omg', '#hello']
 
 # Twitter authentication
 APP_KEY = '0SGK64SYL8Y0R4tCbcm6SA'
