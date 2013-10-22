@@ -7,6 +7,7 @@ Required Packages
 -----------------
 
 ```
+sudo apt-get install python-pygame
 sudo apt-get install python-pip
 sudo pip install twython
 ```
