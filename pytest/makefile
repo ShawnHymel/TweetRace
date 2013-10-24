@@ -3,6 +3,9 @@
 
 # Modify the includes, sources, headers, executable and
 # other flags accordingly!
+#
+# Borrowed & modded by Byron Jacquot
+#
 INCLUDES = -I ./ -I/usr/local/include
 LIBS = -L/usr/lib/ -lm
 
@@ -12,10 +15,12 @@ LFLAGS = -Wall $(DEBUG)
 CFLAGS = -Wall -c
 
 SOURCES = test.cpp \
-		spi_mover.cpp 
+		spi_mover.cpp \
+		shim.cpp
 #      File3.cpp
 
-HEADERS = spi_mover.h 
+HEADERS = spi_mover.h \
+		shim.h
 #      File2.h
 
 OBJ = $(SOURCES:.cpp=.o)
