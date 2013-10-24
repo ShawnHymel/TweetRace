@@ -1,5 +1,6 @@
 
-
+#include <unistd.h>
+#include <stdlib.h>
 #include <iostream>
 
 //#include "spi_mover.h"
@@ -27,7 +28,6 @@ int main(void)
 		else
 	{	
 		for(int i = 0; i < 10; i++)
-		{
 		{
 			if( outbuf[i] == inbuf[i])
 			{

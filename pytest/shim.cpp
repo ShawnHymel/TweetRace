@@ -1,4 +1,6 @@
 
+#include <unistd.h>
+
 #include "spi_mover.h"
 
 #include "shim.h"
@@ -7,7 +9,7 @@
 static spi_mover * instance_p = NULL;
 
 
-bool shim_init(char * path)
+bool shim_init(const char * path)
 {
 	if(instance_p != NULL)
 	{
@@ -20,7 +22,7 @@ bool shim_init(char * path)
 }
 
 
-bool shim_transfer(int num, char* out,char* in)
+bool shim_transfer(int num, uint8_t* out, uint8_t* in)
 {
 	if(instance_p == NULL)
 	{
