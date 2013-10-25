@@ -41,9 +41,24 @@ void string_cb::replace_string(char* new_string)
 	memset(my_string, ' ',  len + my_window);
 	
 	strncpy(my_string, new_string, len);
-	my_len  = len + my_window;
+	my_len  = len;
 	my_locn = 0;
 	
-	std::cout << "Got new string: \"" << my_string << std::endl;
+	std::cout << "Got new string: " << my_string << std::endl;
 
+}
+
+char string_cb::get_current(uint32_t offset)
+{
+	return(my_string[my_locn + offset]);
+}
+
+void string_cb::next_step()
+{
+	my_locn++;
+	
+	if(my_locn > my_len)
+	{
+		my_locn = 0;
+	}
 }

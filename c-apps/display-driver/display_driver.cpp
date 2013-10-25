@@ -85,7 +85,9 @@ void* display_driver::thread_func(void * X)
 
 void display_driver::thread_member_func(int i)
 {
+	char c;
 	uint8_t out[NUM_STRINGS * CHARS_PER_STRING * 2];
+	uint32_t idx = 0;
 	
 	// Only needed because the spi_mover only does bidirectional xfer...
 	// if it had a plain "write" we might not need this.
@@ -97,8 +99,17 @@ void display_driver::thread_member_func(int i)
 	// Render the string buffer
 	for(int i = 0; i < NUM_STRINGS; i++)
 	{
-		out[0] = (font['X'] & 0xff00) >> 8;
-		out[1] = font['X'] & 0xff;
+		for(int j = 0; j < CHARS_PER_STRING; j++)
+		{		
+			c = strings[i]->get_current(j);
+
+			out[idx] = (font[c] & 0xff00) >> 8;
+			out[idx+1] = font[c] & 0xff;
+
+			idx++;
+		}
+		
+		strings[i]->next_step();
 	}
 	
 	// then write the buffer to the displays

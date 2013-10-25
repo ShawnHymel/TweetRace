@@ -10,6 +10,9 @@ class string_cb
 		string_cb(uint32_t window);
 		~string_cb();
 		void replace_string(char*);
+		
+		char get_current(uint32_t offset);
+		void next_step();
 	
 	private:
 		string_cb();
