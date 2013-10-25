@@ -18,16 +18,23 @@ class display_driver
 		void update_string(int index, char * new_string);
 		
 	private:
-	
+		static display_driver * instance_p;
+		
 		spi_mover * mover_p;
+		
 		
 		char * strings[NUM_STRINGS];
 		uint32_t str_lens[NUM_STRINGS];
 
+		// the update thread
 		pthread_t worker_thread;
-		static bool      terminate;
+		static bool      terminate;  // should be a mutex?
 		static void* thread_func(void * X);
 		
+		void thread_member_func(int i);
+		
+		// font data...
+		static const uint16_t font[16];
 };
 
 #endif // keepout

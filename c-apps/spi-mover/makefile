@@ -17,7 +17,8 @@ DEBUG = -g
 LFLAGS = -Wall $(DEBUG)
 CFLAGS = -Wall -c
 
-SOURCES = spi_mover.cpp 
+SOURCES = spi_mover.cpp \
+	test.cpp
 #      File3.cpp
 
 HEADERS = spi_mover.h 
@@ -25,13 +26,13 @@ HEADERS = spi_mover.h
 
 OBJ = $(SOURCES:.cpp=.o)
 
-OUTLIB = spi_mover.so
+#OUTLIB = spi_mover.so
+EXE = test
 
-all: prog
+all: test
 
-$(OUTLIB):    $(OBJ)
-	$(CC) -shared -o $(OUTLIB) $(OBJ) $(LFLAGS) 
-#	$(LIBS)    
+$(EXE):    $(OBJ)
+	$(CC) -o $(EXE) $(OBJ) $(SUBOBJS) $(LFLAGS) $(LIBS)    
 
 .cpp.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
