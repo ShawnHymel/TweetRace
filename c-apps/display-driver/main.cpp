@@ -17,10 +17,10 @@ int main(void)
 	
 		std::cout << "sending: " << c << std::endl;
 	
-		sprintf(tempbuf, "%c", c);
+		sprintf(tempbuf, "test%c", c);
 	
 		disp_p->update_string(0, tempbuf);
-		usleep(500000);
+		sleep(10);
 		
 	}
 	

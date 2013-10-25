@@ -12,12 +12,14 @@ LFLAGS = -Wall $(DEBUG)
 CFLAGS = -Wall -c
 
 SOURCES = main.cpp \
-		display_driver.cpp 
+		display_driver.cpp \
+		string_cb.cpp
 #      File3.cpp
 
 SUBOBJS = ../spi-mover/spi_mover.o
 
-HEADERS = display_driver.h 
+HEADERS = display_driver.h \
+		string_cb.h
 #      File2.h
 
 OBJ = $(SOURCES:.cpp=.o)
