@@ -36,9 +36,9 @@ static PyMethodDef shim_funcs[] = {
 };
 
 /* Init function - this is called when the module is loaded in Python */
-void initshimext(void)
+void initshim_test(void)
 {
-    Py_InitModule3("shimext", shim_funcs, "Extension test");
+    Py_InitModule3("shim_test", shim_funcs, "Extension test");
 }
 
 bool shim_init(const char * path)

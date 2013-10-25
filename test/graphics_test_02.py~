@@ -1,6 +1,4 @@
-import os
-import time
-from pyscope import pyscope
+import pyscope
 
 # Create an instance of the PyScope class
 scope = pyscope()

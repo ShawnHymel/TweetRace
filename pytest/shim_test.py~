@@ -1,0 +1,4 @@
+#!/usr/bin/python
+import shim_test
+
+shim_test.shim_method()
