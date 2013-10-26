@@ -10,8 +10,8 @@
 class display_driver
 {
 	public:
-		static const int NUM_STRINGS = 1;//5;
-		static const int CHARS_PER_STRING = 1;//8;
+		static const int NUM_STRINGS = 5;//5;
+		static const int CHARS_PER_STRING = 8;//8;
 	
 		display_driver();
 		~display_driver();

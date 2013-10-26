@@ -46,7 +46,7 @@ bool display_driver::update_string(int index, char * new_string)
 
 	pthread_mutex_lock(&data_mutex);
 	
-	if(index > NUM_STRINGS)
+	if(index >= NUM_STRINGS)
 	{
 		std::cerr << "Display Error: Invalid string index requested: " << index << std::endl;
 		goto cleanup;
@@ -86,51 +86,43 @@ void* display_driver::thread_func(void * X)
 void display_driver::thread_member_func(int i)
 {
 	char c;
-	uint8_t out[NUM_STRINGS * CHARS_PER_STRING * 2];
+	uint32_t buff_sz = NUM_STRINGS * CHARS_PER_STRING * 2;
+	uint8_t out[buff_sz];
 	uint32_t idx = 0;
 	
 	// Only needed because the spi_mover only does bidirectional xfer...
 	// if it had a plain "write" we might not need this.
 	uint8_t in[NUM_STRINGS * CHARS_PER_STRING * 2];
 
-#if 1
 	pthread_mutex_lock(&data_mutex);
 
 	// Render the string buffer
 	for(int i = 0; i < NUM_STRINGS; i++)
 	{
-		for(int j = 0; j < CHARS_PER_STRING; j++)
+		for(int j = CHARS_PER_STRING-1; j >= 0 ; j--)
 		{		
+			//std::cout << "i: " << i << " j: " j << std::endl;
+		
+			// working backwards
 			c = strings[i]->get_current(j);
 
 			out[idx] = (font[c] & 0xff00) >> 8;
 			out[idx+1] = font[c] & 0xff;
 
-			idx++;
+			idx+=2;
 		}
 		
 		strings[i]->next_step();
 	}
 	
 	// then write the buffer to the displays
-
-	if( ! mover_p->transfer(2, out, in))
+	if( ! mover_p->transfer(buff_sz, out, in))
 	{
-		std::cerr << "Dsiplay transfer() error!" << std::endl;
+		std::cerr << "Display transfer() error!" << std::endl;
 	}
 	
 	
 	pthread_mutex_unlock(&data_mutex);
-#else
-	uint8_t out[2], in[2];
-
-	out[0] = (font[i] & 0xff00) >> 8;
-	out[1] = font[i] & 0xff;
-
-	mover_p->transfer(2, out, in);
-	
-	std::cout << "sending segment: " << i << std::endl;
-#endif
 }
 
 const uint16_t display_driver::font[128] =
