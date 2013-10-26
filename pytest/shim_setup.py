@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-shim_module = Extension('_shim', sources=['shim_wrap.cxx', 'shim.cpp'])
+shim_module = Extension('_shim', sources=['spi_mover.cpp', 'shim_wrap.cxx', 'shim.cpp'])
 
 setup(name='shim', version='0.1', 
       author='SparkFun Peeps', 
