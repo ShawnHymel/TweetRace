@@ -1,4 +1,3 @@
-#!/usr/bin/python
-import shimext
+import shim
 
-shimext.shim_method()
+print shim.shim_init("/dev/spidev0.0")
