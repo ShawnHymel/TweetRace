@@ -31,11 +31,17 @@ display_driver::display_driver()
 
 display_driver::~display_driver()
 {
-
 	display_driver::terminate = true;
 	
 	pthread_join(worker_thread, NULL);
 
+	for(int i = 0; i < NUM_STRINGS; i++)
+	{
+		strings[i] = new string_cb(CHARS_PER_STRING);
+	}
+
+	pthread_mutex_destroy(&data_mutex);
+	
 	delete mover_p;
 }
 
