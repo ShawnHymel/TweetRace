@@ -66,29 +66,72 @@ spi_mover::spi_mover(const char* path)
 	
 }
 
-
 spi_mover::~spi_mover()
 {
 	close(fd);
 }
+
+
+bool spi_mover::set_mode(bool idles_hi,
+						bool sample_on_rising)
+{
+	uint8_t mode;
+	uint8_t mode_check;
+	int status = -1;
+
+	if(idles_hi)
+	{
+		if(sample_on_rising)
+		{
+			mode = SPI_MODE_3;
+		}
+		else
+		{
+			mode = SPI_MODE_2; 
+		}
+	}
+	else // idles lo
+	{
+		if(sample_on_rising)
+		{
+			mode = SPI_MODE_0;
+		}
+		else
+		{
+			mode = SPI_MODE_1; 
+		}
+	}
+	
+	status = ioctl(fd, SPI_IOC_WR_MODE, &mode);
+	if (status == -1)
+	{
+		perror("can't set spi mode");
+		return false;
+	}
+	
+	status = ioctl(fd, SPI_IOC_RD_MODE, &mode_check);
+	if (status == -1)
+	{
+		perror("can't get spi mode");
+		return false;
+	}
+	
+	if(mode != 	mode_check)
+	{
+		perror("new spi mode doesn't match requested...");
+		return false;
+	}
+	
+	printf("new mode 0x%x \r\n", mode_check);
+	return true;
+}
+
 		
 bool spi_mover::transfer(uint32_t num,
 						uint8_t * out_buf,
 						uint8_t * in_buf)
 {
 	int ret;
-#if 0
-	uint8_t tx[] = {
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0x40, 0x00, 0x00, 0x00, 0x00, 0x95,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xDE, 0xAD, 0xBE, 0xEF, 0xBA, 0xAD,
-		0xF0, 0x0D,
-	};
-	uint8_t rx[ARRAY_SIZE(tx)] = {0, };
-#endif	
 
 	struct spi_ioc_transfer tr;// = {
 		tr.tx_buf = (unsigned long)out_buf,
@@ -106,15 +149,5 @@ bool spi_mover::transfer(uint32_t num,
 		return false;
 	}
 	
-#if 0	
-	for (ret = 0; ret < ARRAY_SIZE(tx); ret++) {
-		if (!(ret % 6))
-			puts("");
-		printf("%.2X ", rx[ret]);
-	}
-	puts("");
-#endif	
-
 	return true;
-
 }
