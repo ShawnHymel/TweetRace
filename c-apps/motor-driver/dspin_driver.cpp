@@ -52,7 +52,7 @@ void dspin_driver::test()
 	for(int i = 0; i < 3; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 		
 	printf("Status: 0x%x 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
@@ -65,7 +65,7 @@ void dspin_driver::test()
 	for(int i = 0; i < 2; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 
 	printf("ADC: 0x%x, 0x%x\r\n", in[0], in[1]);
@@ -79,7 +79,7 @@ void dspin_driver::test()
 	for(int i = 0; i < 3; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 
 	printf("MIN: 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
@@ -93,7 +93,7 @@ void dspin_driver::test()
 	for(int i = 0; i < 3; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 
 	printf("MAX: 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
@@ -139,7 +139,7 @@ uint32_t dspin_driver::get_pos()
 	for(int i = 0; i < 4; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 		
 	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
@@ -180,7 +180,7 @@ void dspin_driver::find_home()
 	for(int i = 0; i < 4; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 	
 	// now poll status...
@@ -221,7 +221,7 @@ void dspin_driver::set_step_mode(bool full)
 	for(int i = 0; i < 2; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 
 }
@@ -245,7 +245,7 @@ void dspin_driver::run(bool forward)
 	for(int i = 0; i < 3; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 		
 	//printf("run resp: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
@@ -266,7 +266,7 @@ void dspin_driver::stop(bool hard)
 	for(int i = 0; i < 1; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 		
 	printf("sent %s stop\r\n", (hard ? "hard": "soft"));
@@ -283,7 +283,7 @@ void dspin_driver::reset()
 	for(int i = 0; i < 1; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 		
 	printf("sent reset\r\n");

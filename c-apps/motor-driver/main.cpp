@@ -23,7 +23,7 @@ int main(void)
 	motor_p->find_home(); 
 	
 	// For some reason, required to make it work...
-	sleep(1);
+	//sleep(1);
 		
 	motor_p->run(true);
 
