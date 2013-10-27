@@ -15,15 +15,19 @@ int main(void)
 
 	motor_p->reset();
 	
-	motor_p->test();
-	
-	printf("### initial position x%x\r\n", motor_p->get_pos());
+	//motor_p->test();
+	//printf("### initial position x%x\r\n", motor_p->get_pos());
 
 	motor_p->set_step_mode(true); // to full steps
+
+	motor_p->find_home(); 
 	
+	// For some reason, required to make it work...
+	sleep(1);
+		
 	motor_p->run(true);
 
-	for(int i = 0; i < 30; i++)
+	for(int i = 0; i < 5; i++)
 	{
 		printf("###running position x%x, status x%x\r\n", motor_p->get_pos(), motor_p->get_status());
 		sleep(1);
@@ -33,9 +37,11 @@ int main(void)
 
 	printf("###post run position x%x\r\n", motor_p->get_pos());
 
+	sleep(1);
+	
 	motor_p->run(false);
 
-	for(int i = 0; i < 30; i++)
+	for(int i = 0; i < 5; i++)
 	{
 		printf("###running position x%x, status x%x\r\n", motor_p->get_pos(), motor_p->get_status());
 		sleep(1);

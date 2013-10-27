@@ -6,6 +6,25 @@
 #include "dspin_driver.h"
 
 
+// status masks
+static const uint16_t STATUS_HIZ_FLAG          = 0x0001;
+static const uint16_t STATUS_BUSY_FLAG         = 0x0002;
+static const uint16_t STATUS_SWITCH_CLOSED_FLAG = 0x0004;
+static const uint16_t STATUS_SWITCH_EVENT_FLAG = 0x0008;
+static const uint16_t STATUS_DIR_FLAG          = 0x0010;
+static const uint16_t STATUS_MOTOR_STAT_MASK   = 0x0060;
+static const uint16_t STATUS_NOPERF_CMD_FLAG   = 0x0080;
+
+static const uint16_t STATUS_WRONG_CMD_FLAG    = 0x0100;
+static const uint16_t STATUS_UNDER_V_FLAG      = 0x0200;// active low
+static const uint16_t STATUS_THERM_WARN_FLAG   = 0x0300;// active low
+static const uint16_t STATUS_THERM_SDN_FLAG    = 0x0800;
+static const uint16_t STATUS_OVR_I_FLAG        = 0x1000;
+static const uint16_t STATUS_LOSS_A_FLAG       = 0x2000;
+static const uint16_t STATUS_LOSS_B_FLAG       = 0x4000;
+static const uint16_t STATUS_SCK_MODE_FLAG     = 0x8000;
+
+
 dspin_driver::dspin_driver()
 {
 	mover_p = new spi_mover("/dev/spidev0.1");
@@ -96,10 +115,10 @@ uint16_t dspin_driver::get_status()
 	for(int i = 0; i < 3; i++)
 	{
 		mover_p->transfer(1, &out[i], &in[i]);
-		usleep(1000);
+		//usleep(1000);
 	}
 		
-	printf("Status: 0x%x 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
+	//printf("Status: 0x%x 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
 
 	retval = (in[1] << 8) | in[2];
 	
@@ -123,11 +142,65 @@ uint32_t dspin_driver::get_pos()
 		usleep(1000);
 	}
 		
-	printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
+	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
 
 	retval = (in[1] << 16) | (in[2] << 8) | in[3];
 	
 	return retval;
+}
+
+void dspin_driver::find_home()
+{
+	uint8_t out[4], in[4];
+
+	// Try to put us in home position.
+	// This assumes that if we're not at home, it needs to move backwards to get there.
+	//
+	// This has the side effect of setting the abs pos register.
+	
+	printf("find_home()\r\n");
+	
+	uint16_t status;
+	
+	status = get_status();
+	
+	if(status & STATUS_SWITCH_CLOSED_FLAG)
+	{
+	
+		printf("Already Home: status x%x\r\n", status);
+		// home switch is closed...we're done
+		return;
+	}
+	
+	out[0] = 0x82;
+	out[1] = 0x00;
+	out[2] = 0x14;
+	out[3] = 0x14;
+
+	for(int i = 0; i < 4; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		usleep(1000);
+	}
+	
+	// now poll status...
+	
+	do
+	{
+		status = get_status();
+		printf("hunting...(0x%x)\r\n", status);
+		usleep(10000);
+	}while(!(status & STATUS_SWITCH_CLOSED_FLAG)); // BZY is active low
+
+	do
+	{
+		status = get_status();
+		printf("hunting2...(0x%x)\r\n", status);
+		usleep(10000);
+	}while(!(status & STATUS_BUSY_FLAG)); // BZY is active low
+
+	
+	printf("Found home!  Position 0x%x, ", get_pos());
 }
 
 void dspin_driver::set_step_mode(bool full)
@@ -175,7 +248,7 @@ void dspin_driver::run(bool forward)
 		usleep(1000);
 	}
 		
-	printf("run resp: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
+	//printf("run resp: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
 }
 
 void dspin_driver::stop(bool hard)
@@ -213,7 +286,7 @@ void dspin_driver::reset()
 		usleep(1000);
 	}
 		
-	printf("sent teset\r\n");
+	printf("sent reset\r\n");
 }
 		
 #if 0		

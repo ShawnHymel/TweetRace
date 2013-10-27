@@ -19,6 +19,8 @@ class dspin_driver
 		uint16_t get_status();
 		uint32_t get_pos();
 		
+		void find_home();
+		
 		void set_step_mode(bool full);
 		
 		void run(bool forward);
