@@ -15,6 +15,16 @@ class dspin_driver
 		~dspin_driver();
 		
 		void test();
+		
+		uint16_t get_status();
+		uint32_t get_pos();
+		
+		void set_step_mode(bool full);
+		
+		void run(bool forward);
+		void stop(bool hard);
+		void reset();
+		
 	private:
 		spi_mover * mover_p;
 		
