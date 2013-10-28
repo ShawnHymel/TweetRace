@@ -6,8 +6,8 @@ import sys
 from pyscope import pyscope
 
 # Constants
-FPS = 30        # Frames per second
-RESOLUTION = [540, 960]
+FPS = 30                # Frames per second
+RESOLUTION = [540, 960] # Yes, I know the background is hardcoded. Deal.
 
 # Common colors
 WHITE = 255,255,255
@@ -29,7 +29,7 @@ def main():
     pygame.mouse.set_visible(False)
 
     # Create background
-    rect_game_mode = pygame.draw.rect(screen, WHITE, (20, 20, 60, 60), 0)
+    rect_game_mode = pygame.draw.rect(screen, WHITE, (20, 20, 290, 80), 0)
     
     # Main game loop
     while mainloop:
