@@ -12,7 +12,7 @@ class spi_mover
 		
 		bool set_mode(bool idles_hi,
 					bool sample_on_rising);
-					
+		
 		
 		bool transfer(uint32_t num,
 					uint8_t * out_buf,
