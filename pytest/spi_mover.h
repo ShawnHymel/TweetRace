@@ -16,12 +16,12 @@ class spi_mover
 				 
 	private:
 	
-		uint32_t fd;
+		uint32_t m_fd;
 		
-		uint8_t mode;
-		uint8_t bits;
-		uint32_t speed;
-		uint16_t delay;
+		uint8_t m_mode;
+		uint8_t m_bits;
+		uint32_t m_speed;
+		uint16_t m_delay;
 };
 
 #endif // outer keepout

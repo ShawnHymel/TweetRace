@@ -10,7 +10,7 @@
 int main(void)
 {
 	uint8_t outbuf[10] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
-	uint8_t inbuf[10] = {0,    0,   0,   0,   0,   0,   0,   0,   0,   0};
+	uint8_t inbuf[10] = {9,    8,   7,   6,   5,   4,   3,   2,   1,   0};
 
 #if 0
 	

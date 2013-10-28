@@ -12,7 +12,7 @@ LIBS = -L/usr/lib/ -lm
 CC = g++
 DEBUG = -g
 LFLAGS = -Wall $(DEBUG)
-CFLAGS = -Wall -c
+CFLAGS = -Wall -c -O0
 
 SOURCES = test.cpp \
 		spi_mover.cpp \
