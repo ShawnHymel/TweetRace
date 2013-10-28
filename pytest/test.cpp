@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <iostream>
 
-//#include "spi_mover.h"
+#include "spi_mover.h"
 
-#include "shim.h"
+//#include "shim.h"
 
 int main(void)
 {
 	uint8_t outbuf[10] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'};
-	uint8_t inbuf[10];
+	uint8_t inbuf[10] = {0,    0,   0,   0,   0,   0,   0,   0,   0,   0};
 
-#if 1
+#if 0
 	
 	if( !shim_init("/dev/spidev0.0") )
 	{

@@ -90,14 +90,25 @@ bool spi_mover::transfer(uint32_t num,
 	uint8_t rx[ARRAY_SIZE(tx)] = {0, };
 #endif	
 
-	struct spi_ioc_transfer tr;// = {
-		tr.tx_buf = (unsigned long)out_buf,
-		tr.rx_buf = (unsigned long)in_buf,
-		tr.len = num,
-		tr.delay_usecs = delay,
-		tr.speed_hz = speed,
-		tr.bits_per_word = bits,
-	//};
+	// some argument instrumentation....
+	printf("Transfer len: x%x/r/n", num);
+	for(int i = 0; i < num; i++)
+	{
+		printf("out_buf[%d] = 0x%x\r\n", i, out_buf[i]);
+	}
+
+	for(int i = 0; i < num; i++)
+	{
+		printf("in_buf[%d] = 0x%x\r\n", i, in_buf[i]);
+	}
+
+	struct spi_ioc_transfer tr;
+	tr.tx_buf = (unsigned long)out_buf;
+	tr.rx_buf = (unsigned long)in_buf;
+	tr.len = num;
+	tr.delay_usecs = delay;
+	tr.speed_hz = speed;
+	tr.bits_per_word = bits;
 
 	ret = ioctl(fd, SPI_IOC_MESSAGE(1), &tr);
 	if (ret < 0)
