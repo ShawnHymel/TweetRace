@@ -2,6 +2,7 @@ from distutils.core import setup, Extension
 
 display_driver_module = Extension('_display_driver', sources=[
                             '../../c-apps/spi-mover/spi_mover.cpp',
+                            '../../c-apps/display-driver/string_cb.cpp',
                             '../../c-apps/display-driver/display_driver.cpp', 
                             'display_driver_wrap.cxx'])
 
