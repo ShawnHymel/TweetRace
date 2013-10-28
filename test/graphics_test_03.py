@@ -19,11 +19,16 @@ def main():
     mainloop = True
 
     # Setup display
-    scope = pyscope()
+    #scope = pyscope()
     FPSCLOCK = pygame.time.Clock()
 
     # Main game loop
     while mainloop:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    mainloop = False
+    
         handleEvents()
         drawScreen()
         pygame.display.update()
@@ -31,10 +36,7 @@ def main():
 
 
 def handleEvents():
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q:
-                mainloop = False
+    pass
 
 def drawScreen():
     pass
