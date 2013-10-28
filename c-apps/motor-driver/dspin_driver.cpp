@@ -5,24 +5,71 @@
 
 #include "dspin_driver.h"
 
+// commands
+static const uint8_t CMD_NOP = 0x00;
+static const uint8_t CMD_SET_PARAM = 0x00;
+static const uint8_t CMD_GET_PARAM = 0x20;
+static const uint8_t CMD_RUN = 0x50;
+static const uint8_t CMD_STEP_CLOCK = 0x58;
+static const uint8_t CMD_MOVE = 0x40;
+static const uint8_t CMD_GOTO = 0x60;
+static const uint8_t CMD_GOTO_DIR = 0x68;
+static const uint8_t CMD_GO_UNTIL = 0x82;
+static const uint8_t CMD_RELEASE_SW = 0x92;
+static const uint8_t CMD_GO_HOME = 0x70;
+static const uint8_t CMD_GO_MARK = 0x78;
+static const uint8_t CMD_RESET_POS = 0xd8;
+static const uint8_t CMD_RESET_DEVICE = 0xc0;
+static const uint8_t CMD_STOP = 0xb0;
+static const uint8_t CMD_HIZ = 0xa0;
+static const uint8_t CMD_GET_STATUS = 0xd0;
 
 // status masks
-static const uint16_t STATUS_HIZ_FLAG          = 0x0001;
-static const uint16_t STATUS_BUSY_FLAG         = 0x0002;
+static const uint16_t STATUS_HIZ_FLAG           = 0x0001;
+static const uint16_t STATUS_BUSY_FLAG          = 0x0002;
 static const uint16_t STATUS_SWITCH_CLOSED_FLAG = 0x0004;
-static const uint16_t STATUS_SWITCH_EVENT_FLAG = 0x0008;
-static const uint16_t STATUS_DIR_FLAG          = 0x0010;
-static const uint16_t STATUS_MOTOR_STAT_MASK   = 0x0060;
-static const uint16_t STATUS_NOPERF_CMD_FLAG   = 0x0080;
+static const uint16_t STATUS_SWITCH_EVENT_FLAG  = 0x0008;
+static const uint16_t STATUS_DIR_FLAG           = 0x0010;
+static const uint16_t STATUS_MOTOR_STAT_MASK    = 0x0060;
+static const uint16_t STATUS_NOPERF_CMD_FLAG    = 0x0080;
 
-static const uint16_t STATUS_WRONG_CMD_FLAG    = 0x0100;
-static const uint16_t STATUS_UNDER_V_FLAG      = 0x0200;// active low
-static const uint16_t STATUS_THERM_WARN_FLAG   = 0x0300;// active low
-static const uint16_t STATUS_THERM_SDN_FLAG    = 0x0800;
-static const uint16_t STATUS_OVR_I_FLAG        = 0x1000;
-static const uint16_t STATUS_LOSS_A_FLAG       = 0x2000;
-static const uint16_t STATUS_LOSS_B_FLAG       = 0x4000;
-static const uint16_t STATUS_SCK_MODE_FLAG     = 0x8000;
+static const uint16_t STATUS_WRONG_CMD_FLAG     = 0x0100;
+static const uint16_t STATUS_UNDER_V_FLAG       = 0x0200;// active low
+static const uint16_t STATUS_THERM_WARN_FLAG    = 0x0300;// active low
+static const uint16_t STATUS_THERM_SDN_FLAG     = 0x0800;
+static const uint16_t STATUS_OVR_I_FLAG         = 0x1000;
+static const uint16_t STATUS_LOSS_A_FLAG        = 0x2000;
+static const uint16_t STATUS_LOSS_B_FLAG        = 0x4000;
+static const uint16_t STATUS_SCK_MODE_FLAG      = 0x8000;
+
+// register addresses
+static const uint8_t  REG_ABS_POS         = 0x01;
+static const uint8_t  REG_EL_POS          = 0x02;
+static const uint8_t  REG_MARK_POS        = 0x03;
+static const uint8_t  REG_SPEED           = 0x04;
+static const uint8_t  REG_ACC             = 0x05;
+static const uint8_t  REG_DEC             = 0x06;
+static const uint8_t  REG_MAX_SPD         = 0x07;
+static const uint8_t  REG_MIN_SPD         = 0x08;
+static const uint8_t  REG_FULL_STEP_SPEED = 0x15;
+static const uint8_t  REG_KVAL_HOLD       = 0x09;
+static const uint8_t  REG_KVAL_RUN        = 0x0a;
+static const uint8_t  REG_KVAL_ACC        = 0x0b;
+static const uint8_t  REG_KVAL_DEC        = 0x0c;
+static const uint8_t  REG_INT_SPD         = 0x0d;
+static const uint8_t  REG_START_SLOPE     = 0x0e;
+static const uint8_t  REG_ACC_FINAL_SLOPE = 0x0f;
+static const uint8_t  REG_DEC_FINAL_SLOPE = 0x10;
+static const uint8_t  REG_K_THERM         = 0x11;
+static const uint8_t  REG_ADC_OUT         = 0x12;
+static const uint8_t  REG_OCD_THRESHOLD   = 0x13;
+static const uint8_t  REG_STALL_THRESHOLD = 0x14;
+static const uint8_t  REG_STEP_MODE       = 0x16;
+static const uint8_t  REG_ALARM_EN        = 0x17;
+static const uint8_t  REG_CONFIG          = 0x18;
+static const uint8_t  REG_STATUS          = 0x19;
+//static const uint8_t  REG_RESERVED1 = 0x1a;
+//static const uint8_t  REG_RESERVED2 = 0x1b;
 
 
 dspin_driver::dspin_driver()
@@ -42,8 +89,7 @@ void dspin_driver::test()
 	uint8_t out[4], in[4];
 
 	// try to read status
-	//out[0] = 0x20 | 0x18;
-	out[0] = 0xd0;
+	out[0] = CMD_GET_STATUS;
 	out[1] = 0;
 	out[2] = 0;
 	out[3] = 0;
@@ -58,7 +104,8 @@ void dspin_driver::test()
 	printf("Status: 0x%x 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
 	
 	// try to read ADC
-	out[0] = 0x32;
+	//out[0] = 0x32;
+	out[0] = CMD_GET_PARAM | REG_ADC_OUT;
 	out[1] = 0x00; 
 
 	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
@@ -71,7 +118,7 @@ void dspin_driver::test()
 	printf("ADC: 0x%x, 0x%x\r\n", in[0], in[1]);
 
 	// try to read min speed
-	out[0] = 0x28;
+	out[0] = CMD_GET_PARAM | REG_MIN_SPD;
 	out[1] = 0x00; 
 	out[2] = 0x00; 
 
@@ -85,7 +132,7 @@ void dspin_driver::test()
 	printf("MIN: 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
 
 	// try to read max speed
-	out[0] = 0x27;
+	out[0] = CMD_GET_PARAM | REG_MAX_SPD;
 	out[1] = 0x00; 
 	out[2] = 0x00; 
 
@@ -100,14 +147,14 @@ void dspin_driver::test()
 	
 }
 
+
 uint16_t dspin_driver::get_status()
 {
 	uint8_t out[4], in[4];
 	uint16_t retval;
 
 	// read status
-	//out[0] = 0x20 | 0x18;
-	out[0] = 0xd0;
+	out[0] = CMD_GET_STATUS;
 	out[1] = 0;
 	out[2] = 0;
 
@@ -131,9 +178,10 @@ uint32_t dspin_driver::get_pos()
 	uint32_t retval = 0;
 
 	// read abs pos
-	out[0] = 0x20 | 0x01;
+	out[0] = CMD_GET_PARAM | REG_ABS_POS;
 	out[1] = 0;
 	out[2] = 0;
+	out[3] = 0;
 
 	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
 	for(int i = 0; i < 4; i++)
@@ -147,6 +195,98 @@ uint32_t dspin_driver::get_pos()
 	retval = (in[1] << 16) | (in[2] << 8) | in[3];
 	
 	return retval;
+}
+
+uint16_t dspin_driver::get_config()
+{
+	uint16_t retval;
+	uint8_t out[4], in[4];
+
+	// read abs pos
+	out[0] = CMD_GET_PARAM | REG_CONFIG;
+	out[1] = 0;
+	out[2] = 0;
+	out[3] = 0;
+
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 3; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+		
+	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
+
+	retval = (in[1] << 8) | in[2];
+	
+	return retval;
+}
+
+void 	 dspin_driver::set_config(uint16_t val)
+{
+	uint8_t out[4], in[4];
+
+	// read abs pos
+	out[0] = CMD_SET_PARAM | REG_CONFIG;
+	out[1] = (val & 0xff00) >> 8;
+	out[2] = val & 0x00ff;
+	out[3] = 0;
+
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 3; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+		
+	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
+
+}
+
+void dspin_driver::thwack_kvals()
+{
+	uint8_t out[4], in[4];
+
+	out[0] = CMD_SET_PARAM | REG_KVAL_HOLD;
+	out[1] = 0xff;
+	
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 2; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+		
+	out[0] = CMD_SET_PARAM | REG_KVAL_RUN;
+	out[1] = 0xff;
+	
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 2; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+	out[0] = CMD_SET_PARAM | REG_KVAL_DEC;
+	out[1] = 0xff;
+	
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 2; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+
+	out[0] = CMD_SET_PARAM | REG_KVAL_ACC;
+	out[1] = 0xff;
+	
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 2; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+
+		
 }
 
 void dspin_driver::find_home()
@@ -172,7 +312,7 @@ void dspin_driver::find_home()
 		return;
 	}
 	
-	out[0] = 0x82;
+	out[0] = CMD_GO_UNTIL;
 	out[1] = 0x00;
 	out[2] = 0x14;
 	out[3] = 0x14;
@@ -184,13 +324,11 @@ void dspin_driver::find_home()
 	}
 	
 	// now poll status...
-	
-	do
+	while(is_switch_closed())
 	{
-		status = get_status();
 		printf("hunting...(0x%x)\r\n", status);
-		usleep(10000);
-	}while(!(status & STATUS_SWITCH_CLOSED_FLAG)); // BZY is active low
+		usleep(100000);
+	};
 
 	do
 	{
@@ -199,17 +337,46 @@ void dspin_driver::find_home()
 		usleep(10000);
 	}while(!(status & STATUS_BUSY_FLAG)); // BZY is active low
 
-	
 	printf("Found home!  Position 0x%x, ", get_pos());
+}
+
+void dspin_driver::release_switch()
+{
+	uint8_t out[4], in[4];
+	uint16_t status;
+	
+	out[0] = CMD_RELEASE_SW | 0x01;
+	
+	for(int i = 0; i < 1; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+		//usleep(1000);
+	}
+
+	// now poll status...
+	while(is_switch_closed())
+	{
+		printf(" rel hunting...(0x%x)\r\n", status);
+		usleep(100000);
+	};
+}
+
+bool dspin_driver::is_switch_closed()
+{
+	uint16_t status;
+	
+	status = get_status();
+	
+	return (status & STATUS_SWITCH_CLOSED_FLAG);
 }
 
 void dspin_driver::set_step_mode(bool full)
 {
 	uint8_t out[4], in[4];
-	uint32_t retval = 0;
+	//uint32_t retval = 0;
 
 	// write step mode register
-	out[0] = 0x16;
+	out[0] = CMD_SET_PARAM | REG_STEP_MODE;
 	out[1] = 0;
 	if(!full)
 	{
@@ -232,7 +399,7 @@ void dspin_driver::run(bool forward)
 	uint8_t out[4], in[4];
 
 	// try to read status
-	out[0] = 0x50;
+	out[0] = CMD_RUN;
 	if(forward)
 	{
 		out[0] |= 0x01;
@@ -255,8 +422,7 @@ void dspin_driver::stop(bool hard)
 {
 	uint8_t out[4], in[4];
 
-	// try to read status
-	out[0] = 0xb0;
+	out[0] = CMD_STOP;
 	if(hard)
 	{
 		out[0] |= 0x08;

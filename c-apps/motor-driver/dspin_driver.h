@@ -19,7 +19,14 @@ class dspin_driver
 		uint16_t get_status();
 		uint32_t get_pos();
 		
+		uint16_t get_config();
+		void 	 set_config(uint16_t val);
+		
+		void thwack_kvals();
+		
 		void find_home();
+		void release_switch();
+		bool is_switch_closed();
 		
 		void set_step_mode(bool full);
 		
@@ -28,6 +35,9 @@ class dspin_driver
 		void reset();
 		
 	private:
+	
+		
+	
 		spi_mover * mover_p;
 		
 };
