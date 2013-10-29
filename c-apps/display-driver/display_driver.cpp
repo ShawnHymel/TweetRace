@@ -46,7 +46,7 @@ display_driver::~display_driver()
 }
 
 		
-bool display_driver::update_string(int index, char * new_string)
+bool display_driver::update_string(int index, char * new_string, uint32_t new_len)
 {
 	bool retval = true;
 
@@ -58,7 +58,7 @@ bool display_driver::update_string(int index, char * new_string)
 		goto cleanup;
 	}
 	
-	strings[index]->replace_string(new_string);
+	strings[index]->replace_string(new_string, new_len);
 	
 cleanup:	
 	pthread_mutex_unlock(&data_mutex);

@@ -14,24 +14,30 @@ int main(void)
 	for(char c = 'A'; c <= 'Z'; c++)
 	{
 		char tempbuf[80];
+		uint32_t templen;
 	
 		std::cout << "sending: " << c << std::endl;
 	
 		sprintf(tempbuf, "test%c", c);
-		disp_p->update_string(0, tempbuf);
+		templen = strlen(tempbuf);
+		disp_p->update_string(0, tempbuf, templen);
 
 		sprintf(tempbuf, "%c %c %c", c, c, c);
-		disp_p->update_string(1, tempbuf);
+		templen = strlen(tempbuf);
+		disp_p->update_string(1, tempbuf, templen);
 		
 		sprintf(tempbuf, "3%c3%c3", c, c);
-		disp_p->update_string(2, tempbuf);
+		templen = strlen(tempbuf);
+		disp_p->update_string(2, tempbuf, templen);
 
 		sprintf(tempbuf, "4%c4%c4", c, c);
-		disp_p->update_string(3, tempbuf);
+		templen = strlen(tempbuf);
+		disp_p->update_string(3, tempbuf, templen);
 
 		sprintf(tempbuf, "5Really long %c", c);
-		disp_p->update_string(4, tempbuf);
-		
+		templen = strlen(tempbuf);
+		disp_p->update_string(4, tempbuf, templen);
+	
 		
 		sleep(20);
 		

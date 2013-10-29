@@ -9,7 +9,7 @@ class string_cb
 	public:
 		string_cb(uint32_t window);
 		~string_cb();
-		void replace_string(char*);
+		void replace_string(char*, uint32_t);
 		
 		char get_current(uint32_t offset);
 		void next_step();

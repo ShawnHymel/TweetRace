@@ -16,7 +16,7 @@ class display_driver
 		display_driver();
 		~display_driver();
 		
-		bool update_string(int index, char * new_string);
+		bool update_string(int index, char * new_string, uint32_t new_len);
 		
 	private:
 		static display_driver * instance_p;

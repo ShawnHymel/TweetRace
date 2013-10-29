@@ -21,14 +21,13 @@ string_cb::~string_cb()
 	}
 }
 
-void string_cb::replace_string(char* new_string)
+void string_cb::replace_string(char* new_string, uint32_t new_len)
 {
 	uint32_t len;
 
-	// strlen only gives actual length, not the null
-	len = strlen(new_string);
+	// new_len must give actual length, not the null
 		
-	// if we had an old strong, purge it
+	// if we had an old string, purge it
 	if(my_string != NULL)
 	{
 		delete[] my_string;
@@ -52,15 +51,15 @@ void string_cb::replace_string(char* new_string)
 	// All of this means is that the string will walk in the window, with a
 	// completely blank window between each sequence.
 	
-	my_string = new char[len + my_window + 1];
-	memset(my_string, ' ',  len + my_window);
-	my_string[len + my_window] = NULL;
+	my_string = new char[new_len + my_window + 1];
+	memset(my_string, ' ',  new_len + my_window);
+	my_string[new_len + my_window] = NULL;
 	
-	strncpy(my_string, new_string, len);
-	my_len  = len;
+	strncpy(my_string, new_string, new_len);
+	my_len  = new_len;
 	my_locn = 0;
 	
-	//std::cout << "Got new string: " << my_string << std::endl;
+	std::cout << "Got new string: " << my_string << std::endl;
 
 }
 
