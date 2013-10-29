@@ -22,6 +22,8 @@ class dspin_driver
 		uint16_t get_config();
 		void 	 set_config(uint16_t val);
 		
+		uint8_t  get_adc_val();
+		
 		void thwack_kvals();
 		
 		void find_home();
@@ -32,6 +34,7 @@ class dspin_driver
 		
 		void run(bool forward);
 		void stop(bool hard);
+		void move(bool forward, uint16_t steps);
 		void reset();
 		
 	private:

@@ -5,12 +5,20 @@
 
 // Class for keepin track of hosses
 
-static const uint32_t NUM_HOSSES = 5;
+
+// for interface w/o hardware testing...
+//#define DUMMY 1													// here
+
+#ifndef DUMMY
+#include "dspin_driver.h"
+#endif
+
+//static const uint32_t NUM_HOSSES = 5;								// and here
+static const uint32_t NUM_HOSSES = 1;
 	
 enum hoss_status
 {
 	eUNKNOWN = 0,
-	eSEEKING,
 	eAT_HOME,
 	eRUNNING,
 	eAT_FAR_END,
@@ -22,13 +30,10 @@ enum hoss_status
 class hoss_system
 {
 	public:
-	
-	
 		hoss_system();
 		~hoss_system();
 		
 		void find_home();
-		bool is_any_seeking();
 		bool is_any_at_far_end();
 		uint32_t get_winner();
 
@@ -45,6 +50,13 @@ class hoss_system
 		uint32_t    m_increments[NUM_HOSSES];
 
 		uint32_t    m_positions[NUM_HOSSES];
+		
+#ifndef DUMMY	
+		dspin_driver * m_motor_p;
+		uint32_t       m_seeking;
+
+#endif		
+		
 };
 
 

@@ -243,6 +243,25 @@ void 	 dspin_driver::set_config(uint16_t val)
 
 }
 
+uint8_t  dspin_driver::get_adc_val()
+{
+	uint8_t out[4], in[4];
+
+	// read abs pos
+	out[0] = CMD_GET_PARAM | REG_ADC_OUT;
+	out[1] = 0;
+	out[2] = 0;
+	out[3] = 0;
+
+	for(int i = 0; i < 2; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+	}
+	
+	return in[1];
+}
+
+
 void dspin_driver::thwack_kvals()
 {
 	uint8_t out[4], in[4];
@@ -312,7 +331,7 @@ void dspin_driver::find_home()
 		return;
 	}
 	
-	out[0] = CMD_GO_UNTIL;
+	out[0] = CMD_GO_UNTIL | 0x01;
 	out[1] = 0x00;
 	out[2] = 0x14;
 	out[3] = 0x14;
@@ -345,7 +364,7 @@ void dspin_driver::release_switch()
 	uint8_t out[4], in[4];
 	uint16_t status;
 	
-	out[0] = CMD_RELEASE_SW | 0x01;
+	out[0] = CMD_RELEASE_SW ;//| 0x01;
 	
 	for(int i = 0; i < 1; i++)
 	{
@@ -437,6 +456,31 @@ void dspin_driver::stop(bool hard)
 		
 	printf("sent %s stop\r\n", (hard ? "hard": "soft"));
 }
+		
+void dspin_driver::move(bool forward, uint16_t steps)
+{
+	uint8_t out[4], in[4];
+
+	// A step was really tiny...
+	steps *= 10;
+		
+	out[0] = CMD_MOVE;
+	if(forward)
+	{
+		out[0] |= 0x01;
+	}
+	out[1] = 0;
+	out[2] = (steps & 0xff00) >> 8;
+	out[3] = steps & 0xff;
+
+	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
+	for(int i = 0; i < 4; i++)
+	{
+		mover_p->transfer(1, &out[i], &in[i]);
+	}
+		
+	printf("sent move, x%x, x%x\r\n", forward, steps);	
+}		
 		
 void dspin_driver::reset()
 {

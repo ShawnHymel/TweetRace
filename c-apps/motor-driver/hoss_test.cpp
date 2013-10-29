@@ -14,15 +14,10 @@ int main()
 	
 	hp = new hoss_system();
 	
+	// wont return until they're all at the starting line.
 	hp->find_home();
 	
-	// Need to poll this to keep the reset process running!!
-	while(hp->is_any_seeking())
-	{
-		printf("still seeking\r\n");
-		sleep(1);
-	}
-
+	
 	sleep(1);
 	printf("starting race\r\n");
 	
@@ -35,7 +30,7 @@ int main()
 	
 		hp->race();
 	
-		sleep(5);
+		sleep(1);
 	}
 	
 	// someone reached the end

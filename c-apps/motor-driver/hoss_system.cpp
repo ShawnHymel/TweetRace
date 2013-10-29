@@ -1,19 +1,16 @@
 #include <stdio.h>
+#include <unistd.h>
 
 #include "hoss_system.h"
 
-// for interface w/o hardware testing...
-#define DUMMY 1
 
-#if DUMMY 
+#ifdef DUMMY 
 static uint32_t fake;
 #endif
 
 hoss_system::hoss_system()
 {
 	printf("HS: constructor\r\n");
-	
-#if DUMMY
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
@@ -21,10 +18,31 @@ hoss_system::hoss_system()
 		m_increments[i] = 0;
 		m_positions[i]  = 0;
 	}
+	
+#ifdef DUMMY
 
 	fake = 0;
 	
 #else
+	
+	m_motor_p = new dspin_driver();
+
+	m_motor_p->reset();
+	
+	uint16_t cfg;
+	cfg = m_motor_p->get_config();
+	printf("Initial config: 0x%x\r\n", cfg);
+	cfg &= 0x0010;
+	m_motor_p->set_config(cfg);
+	
+	m_motor_p->set_step_mode(true); // to full steps
+
+	sleep(1);
+	
+	m_motor_p->thwack_kvals();
+
+	sleep(1);
+
 #endif
 }
 
@@ -32,8 +50,11 @@ hoss_system::~hoss_system()
 {
 	printf("HS: destructor\r\n");
 
-#if DUMMY
+#ifdef DUMMY
 #else
+
+	delete m_motor_p;
+	
 #endif
 }
 		
@@ -42,51 +63,34 @@ void hoss_system::find_home()
 	printf("HS: find_home\r\n");
 
 
-#if DUMMY
+#ifdef DUMMY
 
 	fake = 0;
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		m_status[i]     = eSEEKING;	
+		m_status[i]     = eSEEKINGA;	
 	}
 	
 #else
+
+	//for(uint32_t i = 0; i < NUM_HOSSES; i++)
+	{
+		m_motor_p->find_home();
+		
+		m_motor_p->release_switch();
+	}
+
+	
 #endif
 }
 
-bool hoss_system::is_any_seeking()
-{
-	printf("HS: is_any_seeking\r\n");
-
-#if DUMMY
-	for(uint32_t i = 0; i < NUM_HOSSES; i++)
-	{
-		if( (i == 0) && ( m_status[i] == eSEEKING)	)
-		{
-			fake++;
-			if(fake == 20)
-			{
-				for(uint32_t i = 0; i < NUM_HOSSES; i++)
-				{
-					m_status[i] = eAT_HOME;
-				}
-			}
-		
-			return true;
-		}
-	}
-	
-	return false;
-#else
-#endif	
-}
 
 bool hoss_system::is_any_at_far_end()
 {
 	printf("HS: is_any_at_far_end\r\n");
 
-#if DUMMY
+#ifdef DUMMY
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
 		if( m_status[i] == eAT_FAR_END)	
@@ -97,6 +101,24 @@ bool hoss_system::is_any_at_far_end()
 	
 	return false;
 #else
+
+	uint8_t val;
+
+	// TBD - again, large parallel operation?
+	for(uint32_t i = 0; i < NUM_HOSSES; i++)
+	{
+		val = m_motor_p->get_adc_val();
+
+		printf("ADC[%d]: 0x%x\r\n", i, val);
+		
+		if(val & 0x10)
+		{
+			return true;
+		}
+
+	}
+
+	return false;
 #endif	
 	
 }
@@ -105,7 +127,7 @@ uint32_t hoss_system::get_winner()
 {
 	printf("HS: get_winner\r\n");
 	
-#if DUMMY
+#ifdef DUMMY
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
 		if(m_status[i] == eAT_FAR_END)
@@ -116,6 +138,8 @@ uint32_t hoss_system::get_winner()
 	
 	return 0xffffffff;
 #else
+
+	return 0;
 #endif
 
 }
@@ -124,7 +148,7 @@ hoss_status hoss_system::get_status(uint32_t track_num)
 {
 	printf("HS: get_status 0x%x\r\n", track_num);
 
-#if DUMMY
+#ifdef DUMMY
 
 	switch(m_status[track_num])
 	{
@@ -148,14 +172,15 @@ hoss_status hoss_system::get_status(uint32_t track_num)
 	};
 
 #else
+
+	return m_status[track_num];
+
 #endif
 }
 		
 bool hoss_system::set_race_value(uint32_t track_num, uint32_t increment)
 {
 	printf("HS: set_race_value 0x%x, 0x%x\r\n", track_num, increment);
-
-#if DUMMY
 
 	if(track_num >= NUM_HOSSES)
 	{
@@ -166,15 +191,13 @@ bool hoss_system::set_race_value(uint32_t track_num, uint32_t increment)
 	
 	return true;
 
-#else
-#endif
 }
 
 bool hoss_system::race()
 {
 	printf("HS race\r\n");
 
-#if DUMMY
+#ifdef DUMMY
 
 	printf("Racing! 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\r\n", 
 			m_increments[0],
@@ -202,5 +225,15 @@ bool hoss_system::race()
 	return true;
 	
 #else
+
+	// TBD- this will really be a single command, issued to all in parallel?
+
+	for(uint32_t i = 0; i < NUM_HOSSES; i++)
+	{
+		m_motor_p->move(false, m_increments[i]);
+		m_increments[i] = 0;
+	}
+
+	return false;
 #endif
 }

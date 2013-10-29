@@ -12,11 +12,13 @@ LFLAGS = -Wall $(DEBUG)
 CFLAGS = -Wall -c
 
 SOURCES = hoss_test.cpp \
-		hoss_system.cpp 
+		hoss_system.cpp \
+		dspin_driver.cpp
 
-#SUBOBJS = ../spi-mover/spi_mover.o
+SUBOBJS = ../spi-mover/spi_mover.o
 
-HEADERS = hoss_system.h
+HEADERS = hoss_system.h \
+		dspin_driver.h
 #      File2.h
 
 OBJ = $(SOURCES:.cpp=.o)
