@@ -81,6 +81,8 @@ dspin_driver::dspin_driver()
 
 dspin_driver::~dspin_driver()
 {
+	reset();
+
 	delete mover_p;
 }
 
@@ -147,6 +149,51 @@ void dspin_driver::test()
 	
 }
 
+void dspin_driver::test2()
+{
+	uint8_t out[8], in[8];
+
+	out[0] = out[1] = CMD_GET_PARAM | REG_CONFIG;
+	out[2] = out[3] = 0;
+	out[4] = out[5] = 0;
+	
+	for(int i = 0; i < 6; i+=2)
+	{
+		mover_p->transfer(2, &out[i], &in[i]);
+		//usleep(1000);
+	}
+	
+	printf("read: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3], in[4], in[5]);
+
+	out[0] = out[1] = CMD_GET_PARAM | REG_STATUS;
+	out[2] = out[3] = 0;
+	out[4] = out[5] = 0;
+	
+	for(int i = 0; i < 6; i+=2)
+	{
+		mover_p->transfer(2, &out[i], &in[i]);
+		//usleep(1000);
+	}
+	
+	printf("read: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3], in[4], in[5]);
+	
+	out[0] = out[1] = CMD_GO_UNTIL;
+	out[2] = out[3] = 0;
+	out[4] = out[5] = 14;
+	out[6] = out[7] = 0;
+	
+	out[0] |= 0x01; // other direction
+	
+	for(int i = 0; i < 8; i+=2)
+	{
+		mover_p->transfer(2, &out[i], &in[i]);
+		//usleep(1000);
+	}
+	
+	//printf("read: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3], in[4], in[5]);
+	
+	
+}
 
 uint16_t dspin_driver::get_status()
 {

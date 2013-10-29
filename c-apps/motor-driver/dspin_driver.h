@@ -15,6 +15,7 @@ class dspin_driver
 		~dspin_driver();
 		
 		void test();
+		void test2();
 		
 		uint16_t get_status();
 		uint32_t get_pos();

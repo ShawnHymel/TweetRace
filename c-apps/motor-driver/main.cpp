@@ -7,6 +7,18 @@
 
 int main(void)
 {
+	dspin_driver * motor_p;
+
+	motor_p = new dspin_driver();
+
+	motor_p->test2();
+
+	sleep(10);
+	
+	
+	delete motor_p;
+	
+#if 0
 	uint32_t pos;
 
 	dspin_driver * motor_p;
@@ -85,4 +97,5 @@ int main(void)
 	motor_p->test();
 	
 	delete motor_p;
+#endif	
 }
