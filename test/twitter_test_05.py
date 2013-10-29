@@ -8,7 +8,7 @@ from twython import TwythonStreamer
 
 # Game parameters
 terms = ['#omg', '#hello'] # Search terms (hashtags only right now)
-game_time = 10                       # Game time (seconds)
+game_time = 30                       # Game time (seconds)
 
 # Twitter authentication
 APP_KEY = '0SGK64SYL8Y0R4tCbcm6SA'
@@ -25,7 +25,7 @@ class MyStreamer(TwythonStreamer):
             for hashtag in data['entities']['hashtags']:
                 for term in score_terms:
                     if term == hashtag['text'].lower():
-                        print term
+                        print term, ' : ', score_terms.index(term)
                         i = score_terms.index(term)
                         scoreboard[1][i] += 1
             print scoreboard            
