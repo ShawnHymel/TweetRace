@@ -26,4 +26,4 @@ for str_index, s in enumerate(out_strs):
     #display_driver.delete_charArray(out_chars)
 
 # Sleep to let displays cycle
-time.sleep(1)
+time.sleep(30)
