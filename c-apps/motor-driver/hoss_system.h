@@ -7,14 +7,14 @@
 
 
 // for interface w/o hardware testing...
-//#define DUMMY 1													// here
+#define DUMMY 1													// here
 
 #ifndef DUMMY
 #include "dspin_driver.h"
 #endif
 
-//static const uint32_t NUM_HOSSES = 5;								// and here
-static const uint32_t NUM_HOSSES = 1;
+static const uint32_t NUM_HOSSES = 5;								// and here
+//static const uint32_t NUM_HOSSES = 1;
 	
 enum hoss_status
 {
