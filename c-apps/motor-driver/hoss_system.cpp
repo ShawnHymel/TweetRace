@@ -4,9 +4,6 @@
 #include "hoss_system.h"
 
 
-#ifdef DUMMY 
-static uint32_t fake;
-#endif
 
 hoss_system::hoss_system()
 {
@@ -21,7 +18,6 @@ hoss_system::hoss_system()
 	
 #ifdef DUMMY
 
-	fake = 0;
 	
 #else
 	
@@ -65,12 +61,7 @@ void hoss_system::find_home()
 
 #ifdef DUMMY
 
-	fake = 0;
-
-	for(uint32_t i = 0; i < NUM_HOSSES; i++)
-	{
-		m_status[i]     = eSEEKINGA;	
-	}
+	sleep(10);
 	
 #else
 
@@ -148,34 +139,7 @@ hoss_status hoss_system::get_status(uint32_t track_num)
 {
 	printf("HS: get_status 0x%x\r\n", track_num);
 
-#ifdef DUMMY
-
-	switch(m_status[track_num])
-	{
-	case eSEEKING:
-	{
-		fake++;
-		if(fake == 20)
-		{
-			for(uint32_t i = 0; i < NUM_HOSSES; i++)
-			{
-				m_status[i] = eAT_HOME;
-			}
-		}
-		
-		return m_status[track_num];
-	}	
-	break;
-	
-	default:
-		return m_status[track_num];
-	};
-
-#else
-
 	return m_status[track_num];
-
-#endif
 }
 		
 bool hoss_system::set_race_value(uint32_t track_num, uint32_t increment)
