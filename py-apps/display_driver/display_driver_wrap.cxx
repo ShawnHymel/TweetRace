@@ -3458,6 +3458,22 @@ SWIG_AsVal_int (PyObject * obj, int *val)
 }
 
 
+SWIGINTERN int
+SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
+{
+  unsigned long v;
+  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v > UINT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< unsigned int >(v);
+    }
+  }  
+  return res;
+}
+
+
 SWIGINTERNINLINE PyObject*
   SWIG_From_bool  (bool value)
 {
@@ -3628,6 +3644,7 @@ SWIGINTERN PyObject *_wrap_display_driver_update_string(PyObject *SWIGUNUSEDPARM
   display_driver *arg1 = (display_driver *) 0 ;
   int arg2 ;
   char *arg3 = (char *) 0 ;
+  uint32_t arg4 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int val2 ;
@@ -3635,12 +3652,15 @@ SWIGINTERN PyObject *_wrap_display_driver_update_string(PyObject *SWIGUNUSEDPARM
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  unsigned int val4 ;
+  int ecode4 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
   bool result;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:display_driver_update_string",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:display_driver_update_string",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_display_driver, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "display_driver_update_string" "', argument " "1"" of type '" "display_driver *""'"); 
@@ -3656,7 +3676,12 @@ SWIGINTERN PyObject *_wrap_display_driver_update_string(PyObject *SWIGUNUSEDPARM
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "display_driver_update_string" "', argument " "3"" of type '" "char *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  result = (bool)(arg1)->update_string(arg2,arg3);
+  ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "display_driver_update_string" "', argument " "4"" of type '" "uint32_t""'");
+  } 
+  arg4 = static_cast< uint32_t >(val4);
+  result = (bool)(arg1)->update_string(arg2,arg3,arg4);
   resultobj = SWIG_From_bool(static_cast< bool >(result));
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return resultobj;

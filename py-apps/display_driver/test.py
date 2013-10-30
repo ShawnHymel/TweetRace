@@ -2,7 +2,7 @@ import time
 import display_driver
 
 # Parameters
-out_strs = ["HashTest123\0", "MileyCyrus\0", "OMG\0", "Thisis\0", "test\0"]
+out_strs = ["HashTest123", "MileyCyrus", "OMG", "Thisis", "test"]
 
 # Create display object
 disp_p = display_driver.display_driver()
@@ -20,7 +20,7 @@ for str_index, s in enumerate(out_strs):
         print i, ' : ', display_driver.charArray_getitem(out_chars,i)
 
     # Send out string
-    if not disp_p.update_string(str_index, out_chars):
+    if not disp_p.update_string(str_index, out_chars, len(s)):
         print 'Update string failed'
 
     #display_driver.delete_charArray(out_chars)
