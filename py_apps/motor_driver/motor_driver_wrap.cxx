@@ -4029,6 +4029,7 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
+  SWIG_Python_SetConstant(d, "DUMMY",SWIG_From_int(static_cast< int >(1)));
   PyDict_SetItemString(md,(char*)"cvar", SWIG_globals());
   SWIG_addvarlink(SWIG_globals(),(char*)"NUM_HOSSES",Swig_var_NUM_HOSSES_get, Swig_var_NUM_HOSSES_set);
   SWIG_Python_SetConstant(d, "eUNKNOWN",SWIG_From_int(static_cast< int >(eUNKNOWN)));
