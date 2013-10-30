@@ -16,6 +16,12 @@ sudo apt-get install swig
 sudo pip install twython
 ```
 
+On some systems, timidity might be needed to avoid errors with pygame:
+
+```
+sudo apt-get install timidity
+```
+
 Generate Twitter App Token
 --------------------------
 
