@@ -1,0 +1,9 @@
+[game_settings]
+terms = ['#omg', '#hello', '#diy', '#robot', '#fun'] 
+game_time = 10
+
+[twitter_auth]
+app_key = '0SGK64SYL8Y0R4tCbcm6SA'
+app_secret = 'f1RFySmg0RVRVtTGnvu9NvrWm73IT7C8Z1gpcYZAwo'
+oauth_token = '1969690717-lDn8UEoAIp5h2zITLyPtfGjY8EGhazHTzUVQBvH'
+oauth_token_secret = 'gv9vGWluxgMtMY77evxainwolbFhxIiCJsGTd79N2I'
