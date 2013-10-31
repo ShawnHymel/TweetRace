@@ -23,33 +23,18 @@ hoss_system::hoss_system()
 	
 	m_motor_p = new dspin_driver();
 
-	for(uint32_t track = 0; track < NUM_HOSSES; i++)
+	m_motor_p->reset();
+
+	for(uint32_t track = 0; track < NUM_HOSSES; track++)
 	{	
-		m_motor_p->reset(track);
-		
 		m_motor_p->set_config(track, 
 								0xff, // kval
-								bool full_step);
+								true);
 								//...more param to come?
 								
 	}
-	
-	m_motor_p->reset();
-	
-	uint16_t cfg;
-	cfg = m_motor_p->get_config();
-	printf("Initial config: 0x%x\r\n", cfg);
-	cfg &= 0x0010;
-	m_motor_p->set_config(cfg);
-	
-	m_motor_p->set_step_mode(true); // to full steps
 
-	sleep(1);
 	
-	m_motor_p->thwack_kvals();
-
-	sleep(1);
-
 #endif
 }
 
@@ -59,6 +44,8 @@ hoss_system::~hoss_system()
 
 #ifdef DUMMY
 #else
+
+	m_motor_p->reset();
 
 	delete m_motor_p;
 	
@@ -76,11 +63,15 @@ void hoss_system::find_home()
 	
 #else
 
-	//for(uint32_t i = 0; i < NUM_HOSSES; i++)
+	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		m_motor_p->find_home();
-		
-		m_motor_p->release_switch();
+		m_motor_p->find_home(i);
+	}
+
+	for(uint32_t i = 0; i < NUM_HOSSES; i++)
+	{
+		m_motor_p->release_switch(i);
+		m_status[i] = eAT_HOME;
 	}
 
 	
@@ -109,12 +100,13 @@ bool hoss_system::is_any_at_far_end()
 	// TBD - again, large parallel operation?
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		val = m_motor_p->get_adc_val();
+		val = m_motor_p->get_adc_val(i);
 
 		printf("ADC[%d]: 0x%x\r\n", i, val);
 		
 		if(val & 0x10)
 		{
+			m_status[i] = eAT_FAR_END;
 			return true;
 		}
 
@@ -129,7 +121,6 @@ uint32_t hoss_system::get_winner()
 {
 	printf("HS: get_winner\r\n");
 	
-#ifdef DUMMY
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
 		if(m_status[i] == eAT_FAR_END)
@@ -139,11 +130,6 @@ uint32_t hoss_system::get_winner()
 	}
 	
 	return 0xffffffff;
-#else
-
-	return 0;
-#endif
-
 }
 
 hoss_status hoss_system::get_status(uint32_t track_num)
@@ -170,16 +156,15 @@ bool hoss_system::set_race_value(uint32_t track_num, uint32_t increment)
 
 bool hoss_system::race()
 {
-	printf("HS race\r\n");
-
-#ifdef DUMMY
-
 	printf("Racing! 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\r\n", 
 			m_increments[0],
 			m_increments[1],
 			m_increments[2],
 			m_increments[3],
 			m_increments[4]);
+
+#ifdef DUMMY
+
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
@@ -205,10 +190,14 @@ bool hoss_system::race()
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		m_motor_p->move(false, m_increments[i]);
+		m_motor_p->move(i, true, m_increments[i]);
 		m_increments[i] = 0;
-	}
 
-	return false;
+		if(m_status[i] == eAT_HOME)
+		{
+			m_status[i] = eRUNNING;
+		}
+	}
+	return true;
 #endif
 }

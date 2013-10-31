@@ -107,6 +107,8 @@ void dspin_driver::test2(uint32_t chan)
 	status = reg_read(chan, REG_STATUS, 2);
 	printf("Status: 0x%x.\r\n", status);
 	
+	set_config(chan, 0xff, true);
+#if 0	
 	sleep(1);
 	
 	//reg_write(chan, REG_KVAL_HOLD, 1, 0xff);
@@ -117,6 +119,7 @@ void dspin_driver::test2(uint32_t chan)
 	sleep(1);
 	
 	set_step_mode(chan, true);
+#endif
 	
 	sleep(1);
 	
@@ -182,6 +185,24 @@ void dspin_driver::test3()
 	
 }
 
+bool dspin_driver::set_config(uint32_t channel, uint8_t kval, bool full)
+{
+
+
+	if(channel >= NUM_MOTORS)
+	{
+		return false;
+	}
+	
+	//reg_write(chan, REG_KVAL_HOLD, 1, 0xff);
+	reg_write(channel, REG_KVAL_RUN, 1, kval);
+	reg_write(channel, REG_KVAL_ACC, 1, kval);
+	reg_write(channel, REG_KVAL_DEC, 1, kval);
+	
+	set_step_mode(channel, full);
+	
+	return true;
+}
 
 uint32_t dspin_driver::get_pos(uint32_t channel)
 {
@@ -510,13 +531,15 @@ bool dspin_driver::send_cmd_single(uint32_t channel, uint32_t len, uint8_t * out
 		// then overwrite the one we want to actually send...
 		out[channel] = out_data[i] ;
 		
+#if 0		
 		printf("Sending :");
 		for(uint32_t ii = 0; ii < NUM_MOTORS; ii++)
 		{
 			printf("x%x:x%x ",ii,out[ii]);
 		}
+		
 		printf("\r\n");
-
+#endif
 		// And send it
 		if(!mover_p->transfer(NUM_MOTORS, out, in))
 		{
@@ -524,13 +547,14 @@ bool dspin_driver::send_cmd_single(uint32_t channel, uint32_t len, uint8_t * out
 			return false;
 		}
 
+#if 0		
 		printf("Received :");
 		for(uint32_t ii = 0; ii < NUM_MOTORS; ii++)
 		{
 			printf("x%x:x%x ",ii,in[ii]);
 		}
 		printf("\r\n");
-
+#endif
 		
 		//printf("d\r\n");
 		// then copy back the response

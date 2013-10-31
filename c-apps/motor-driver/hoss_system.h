@@ -14,7 +14,7 @@
 #endif
 
 //static const uint32_t NUM_HOSSES = 5;								// and here
-static const uint32_t NUM_HOSSES = 1;
+static const uint32_t NUM_HOSSES = 2;
 	
 enum hoss_status
 {
