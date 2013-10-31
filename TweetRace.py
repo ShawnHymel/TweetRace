@@ -36,6 +36,7 @@ PARAM_FILE = 'param.txt'
 RESOLUTION = [540, 960]
 SETTINGS_SECTION = 'game_settings'
 SETTINGS_TERMS = 'terms'
+SETTINGS_SPD_MULT = 'spd_mult'
 SETTINGS_FPS = 'fps'
 SETTINGS_HORSE_TICK = 'horse_tick'
 SETTINGS_DEBUG = 'debug'
@@ -55,6 +56,7 @@ RED   = 255,0,0
 
 g_debug = None
 g_terms = None
+g_spd_mult = 0
 g_game_time = None
 g_horse_tick = None
 g_num_horses = 0
@@ -62,6 +64,7 @@ g_fps = None
 g_twitter_auth = {}
 g_mainloop = None
 g_screen = None
+g_led_display = None
 
 #-----------------------------------------------------------------------------
 # Functions
@@ -71,6 +74,7 @@ g_screen = None
 def config_params():   
     global g_fps
     global g_terms
+    global g_spd_mult
     global g_game_time
     global g_horse_tick
     global g_num_horses
@@ -88,9 +92,41 @@ def config_params():
     # Read in game settings
     g_terms = config.get(SETTINGS_SECTION, SETTINGS_TERMS).split(',')
     g_num_horses = len(g_terms)
+    g_spd_mult = int(config.get(SETTINGS_SECTION, SETTINGS_SPD_MULT))
     g_fps = int(config.get(SETTINGS_SECTION, SETTINGS_FPS))
     g_horse_tick = int(config.get(SETTINGS_SECTION, SETTINGS_HORSE_TICK))
     g_debug = int(config.get(SETTINGS_SECTION, SETTINGS_DEBUG))
+
+# Send display strings to alphanumeric LED displays
+def display_terms():
+
+    global g_terms
+    global g_led_display
+
+    # Remove '#' from all hashtags
+    out_strs = [x[1:].lower() for x in g_terms]
+    
+    # In debug mode, only print to console
+    if g_debug > 0:
+        for s in out_strs:
+            print 'Displaying: ', s
+    else:
+        g_led_display = display_driver.display_driver()
+        for str_index, s in enumerate(out_strs):   
+
+            # Define char array
+            out_chars = display_driver.new_charArray(len(s))
+
+            # Fill char array
+            print 'String ', str_index, ': ', s
+            for i, c in enumerate(bytearray(s.upper())):
+                display_driver.charArray_setitem(out_chars,i,c)
+                print i, ' : ', display_driver.charArray_getitem(out_chars,i)
+
+            # Send out string
+            if not g_led_display.update_string(str_index, out_chars, len(s)):
+                print 'Update string failed'
+    
 
 # Handle graphics on the screen
 def draw_screen():
@@ -151,6 +187,7 @@ def draw_screen():
 def main():
     global g_fps
     global g_terms
+    global g_spd_mult
     global g_game_time
     global g_horse_tick
     global g_num_horses
@@ -158,6 +195,7 @@ def main():
     global g_twitter_auth
     global g_mainloop
     global g_screen
+    global g_led_display
 
     # Read in parameters file and configure game
     config_params()
@@ -172,8 +210,11 @@ def main():
 
     # Create a new hoss system (motor driver) and reset
     hp = motor_driver.hoss_system()
-    hp.find_home()
+    #hp.find_home()
     time.sleep(1)
+
+    # Show terms on alphanumeric displays
+    display_terms()
 
     # Create a TwitFeed object
     tf = twit_feed.TwitFeed(g_twitter_auth, g_terms)
@@ -216,7 +257,7 @@ def main():
             elif event.type == pygame.USEREVENT+1:
                 score_card = tf.tally_tweets()
                 for i in range(0, g_num_horses):
-                    hp.set_race_value(i, score_card[i])
+                    hp.set_race_value(i, score_card[i] * g_spd_mult)
                 hp.race()
                 if hp.is_any_at_far_end():
                     g_mainloop = False
