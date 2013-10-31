@@ -14,7 +14,12 @@ sudo apt-get install python-pygame
 sudo apt-get install python-pip
 sudo apt-get install swig
 sudo pip install twython
+```
 
+On some systems, timidity might be needed to avoid errors with pygame:
+
+```
+sudo apt-get install timidity
 ```
 
 Generate Twitter App Token
@@ -38,6 +43,7 @@ How To Run
 
  - Fill out Twitter authentication in param.txt
  - Fill out hashtags in hashtags.txt
+
 ```
-sudo python TweetRace.pu
+sudo python TweetRace.py
 ```
