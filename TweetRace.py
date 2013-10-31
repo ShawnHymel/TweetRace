@@ -189,6 +189,7 @@ def main():
             print m, '\n'
         print 'End game'
         print tf.tally_tweets()
+    tf.stop()
     pygame.quit()
 
 # Run main

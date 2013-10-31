@@ -30,6 +30,10 @@ class TwitStreamer(TwythonStreamer):
     # Callback from streamer if error occurs
     def on_error(self, status_code, data):
         print status_code, data
+        
+    # Called from main thread to stop the streamer
+    def stop(self):
+        self.disconnect()
 
 # TwitFeed class sets up the streamer and provides access to tweets and score
 class TwitFeed:
@@ -127,3 +131,7 @@ class TwitFeed:
             else:
                 tweet_list.append(msg)
         return tweet_list
+        
+    # [Public] Stop the streamer and close the thread
+    def stop(self):
+        self.stream.stop()
