@@ -25,7 +25,7 @@ int main()
 	{
 		for(uint32_t i = 0; i < NUM_HOSSES; i++)
 		{	
-			hp->set_race_value(i, (rand()%5));
+			hp->set_race_value(i, (rand()%5)*10);
 		}
 	
 		hp->race();
