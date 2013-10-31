@@ -132,6 +132,8 @@ class TwitFeed:
                 tweet_list.append(msg)
         return tweet_list
         
-    # [Public] Stop the streamer and close the thread
+    # [Public] Stop the streamer and wait for thread to end
     def stop(self):
         self.stream.stop()
+        while self.thread_stream.is_alive():
+            pass
