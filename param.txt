@@ -10,7 +10,7 @@
 ;           1 = output to console. Change and recompile hoss_system.h
 [game_settings]
 terms = #omg,#hello,#diy,#robot,#fun
-fps = 30
+fps = 20
 horse_tick = 1000
 debug = 1
 

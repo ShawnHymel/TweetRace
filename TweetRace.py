@@ -98,6 +98,7 @@ def draw_screen():
     global g_screen
 
     # Create fonts
+    font_mode = pygame.font.Font(None, 96)
     font_timer = pygame.font.Font(None, 96)
     font_title_1 = pygame.font.Font(None, 68)
     font_title_2 = pygame.font.Font(None, 68)
@@ -105,25 +106,29 @@ def draw_screen():
     # Create background
     rect_bg = pygame.draw.rect(g_screen, BLACK, (0, 0, 540, 960), 0)
     rect_title = pygame.draw.rect(g_screen, WHITE, (20, 20, 500, 100), 0)
-    rect_game_mode = pygame.draw.rect(g_screen, WHITE, (20, 140, 300, 60), 0)
-    rect_timer = pygame.draw.rect(g_screen, WHITE, (340, 140, 180, 60), 0)
+    rect_game_mode = pygame.draw.rect(g_screen, WHITE, (20, 140, 210, 60), 0)
+    rect_timer = pygame.draw.rect(g_screen, WHITE, (250, 140, 270, 60), 0)
     
     # Draw title
     title1 = "The Great American"
     title2 = "Tweet Race"
-    text_title_1 = font_title_1.render(title1,1,GREEN)
-    text_title_2 = font_title_2.render(title2,1,GREEN)
+    text_title_1 = font_title_1.render(title1,1,BLACK)
+    text_title_2 = font_title_2.render(title2,1,BLACK)
     g_screen.blit(text_title_1, (40, 25))
     g_screen.blit(text_title_2, (40, 70))
 
+    # Draw game mode
+    mode_str = font_mode.render('Race!',1,BLACK)
+    g_screen.blit(mode_str, (30, 135))
+
     # Draw remaining time
     if g_game_time <= 0:
-        game_time_str = '00:00'
-        event_quit = pygame.event.Event(pygame.QUIT)
-        pygame.event.post(event_quit)
+        game_time_str = '00:00:00'
     else:
         game_time_min = g_game_time / 60000
         game_time_sec = (g_game_time - (game_time_min * 60000)) / 1000
+        game_time_ms = (g_game_time - (game_time_min * 60000) - \
+                                        (game_time_sec * 1000)) / 10
         if game_time_min < 10:
             game_time_str = '0' + str(game_time_min)
         else:
@@ -132,8 +137,12 @@ def draw_screen():
             game_time_str = game_time_str + ':0' + str(game_time_sec)
         else:
             game_time_str = game_time_str + ':' + str(game_time_sec)
+        if game_time_ms < 10:
+            game_time_str = game_time_str + ':0' + str(game_time_ms)
+        else:
+            game_time_str = game_time_str + ':' + str(game_time_ms)
     text_timer = font_timer.render(game_time_str,1,RED)
-    g_screen.blit(text_timer, (341, 140))
+    g_screen.blit(text_timer, (255, 135))
 
 #-----------------------------------------------------------------------------
 # Main
