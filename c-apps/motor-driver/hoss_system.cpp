@@ -23,6 +23,17 @@ hoss_system::hoss_system()
 	
 	m_motor_p = new dspin_driver();
 
+	for(uint32_t track = 0; track < NUM_HOSSES; i++)
+	{	
+		m_motor_p->reset(track);
+		
+		m_motor_p->set_config(track, 
+								0xff, // kval
+								bool full_step);
+								//...more param to come?
+								
+	}
+	
 	m_motor_p->reset();
 	
 	uint16_t cfg;

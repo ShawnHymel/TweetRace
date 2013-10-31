@@ -7,14 +7,40 @@
 
 int main(void)
 {
+	printf("testing!!\r\n");
+
+
 	dspin_driver * motor_p;
 
 	motor_p = new dspin_driver();
 
-	motor_p->test2();
+#if 0	
+	for(int i = 0 ; i < 100; i++)
+	{
+		motor_p->test3();
+		sleep(1);
+	}
+#endif	
+	
+#if 1
+	
+	printf("testing1!!\r\n");
+	motor_p->test2(0);
 
 	sleep(10);
+
+	printf("testing2!!\r\n");
+	motor_p->test2(1);
+
+	sleep(10);
+
 	
+
+	printf("testing3!!\r\n");
+	//motor_p->test2(2);
+
+	sleep(10);
+#endif	
 	
 	delete motor_p;
 	

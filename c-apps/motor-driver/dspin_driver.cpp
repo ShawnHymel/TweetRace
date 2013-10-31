@@ -88,227 +88,112 @@ dspin_driver::~dspin_driver()
 
 void dspin_driver::test()
 {
-	uint8_t out[4], in[4];
+}
 
-	// try to read status
-	out[0] = CMD_GET_STATUS;
+void dspin_driver::test2(uint32_t chan)
+{
+	//uint8_t out[4], in[4];
+
+	printf("Test2, i = x%x\r\n", chan);
+
+	uint32_t config;
+	config = reg_read(chan, REG_CONFIG, 2);
+	printf("Config: 0x%x.\r\n", config);
+	//config &= 0x0010;
+	//reg_write(chan, REG_CONFIG, 2, config);
+	
+	
+	uint32_t status;
+	status = reg_read(chan, REG_STATUS, 2);
+	printf("Status: 0x%x.\r\n", status);
+	
+	sleep(1);
+	
+	//reg_write(chan, REG_KVAL_HOLD, 1, 0xff);
+	reg_write(chan, REG_KVAL_RUN, 1, 0xff);
+	reg_write(chan, REG_KVAL_ACC, 1, 0xff);
+	reg_write(chan, REG_KVAL_DEC, 1, 0xff);
+	
+	sleep(1);
+	
+	set_step_mode(chan, true);
+	
+	sleep(1);
+	
+	find_home(chan);
+	
+	sleep(1);
+	
+	release_switch(chan);
+	
+	sleep(1);
+	
+	move(chan, true, 5);
+	
+	sleep(10);
+
+	move(chan, false, 4);
+	
+	sleep(10);
+	
+#if 0	
+	// run fwd
+	run(chan, true);
+	
+	sleep(5);
+	
+	stop(chan, false);
+	//stop(chan, true);
+	
+	sleep(1);
+	
+	// run back 
+	run(chan, false);
+	
+	sleep(3);
+	
+	stop(chan, false);
+#endif	
+	sleep(1);
+#if 0	
+	out[0] = CMD_GO_UNTIL;
 	out[1] = 0;
-	out[2] = 0;
+	out[2] = 14;
 	out[3] = 0;
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	printf("Status: 0x%x 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
 	
-	// try to read ADC
-	//out[0] = 0x32;
-	out[0] = CMD_GET_PARAM | REG_ADC_OUT;
-	out[1] = 0x00; 
+	//out[0] |= 0x01; // other direction
+	
+	send_cmd_single(chan, 4, out, in);
 
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 2; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
+	printf("read: 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3]);
+#endif	
 
-	printf("ADC: 0x%x, 0x%x\r\n", in[0], in[1]);
 
-	// try to read min speed
-	out[0] = CMD_GET_PARAM | REG_MIN_SPD;
-	out[1] = 0x00; 
-	out[2] = 0x00; 
+}
 
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-
-	printf("MIN: 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
-
-	// try to read max speed
-	out[0] = CMD_GET_PARAM | REG_MAX_SPD;
-	out[1] = 0x00; 
-	out[2] = 0x00; 
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-
-	printf("MAX: 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
+void dspin_driver::test3()
+{
+	uint16_t status[2];
+	
+	status[0] = reg_read(0, REG_STATUS, 2);
+	status[1] = reg_read(1, REG_STATUS, 2);
+	
+	printf("Statuses x%x, x%x\r\n\r\n", status[0], status[1]);
 	
 }
 
-void dspin_driver::test2()
+
+uint32_t dspin_driver::get_pos(uint32_t channel)
 {
-	uint8_t out[8], in[8];
-
-	out[0] = out[1] = CMD_GET_PARAM | REG_CONFIG;
-	out[2] = out[3] = 0;
-	out[4] = out[5] = 0;
+	uint32_t retval;
 	
-	for(int i = 0; i < 6; i+=2)
-	{
-		mover_p->transfer(2, &out[i], &in[i]);
-		//usleep(1000);
-	}
-	
-	printf("read: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3], in[4], in[5]);
-
-	out[0] = out[1] = CMD_GET_PARAM | REG_STATUS;
-	out[2] = out[3] = 0;
-	out[4] = out[5] = 0;
-	
-	for(int i = 0; i < 6; i+=2)
-	{
-		mover_p->transfer(2, &out[i], &in[i]);
-		//usleep(1000);
-	}
-	
-	printf("read: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3], in[4], in[5]);
-	
-	out[0] = out[1] = CMD_GO_UNTIL;
-	out[2] = out[3] = 0;
-	out[4] = out[5] = 14;
-	out[6] = out[7] = 0;
-	
-	out[0] |= 0x01; // other direction
-	
-	for(int i = 0; i < 8; i+=2)
-	{
-		mover_p->transfer(2, &out[i], &in[i]);
-		//usleep(1000);
-	}
-	
-	//printf("read: 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x.\r\n", in[0], in[1], in[2], in[3], in[4], in[5]);
-	
-	
-}
-
-uint16_t dspin_driver::get_status()
-{
-	uint8_t out[4], in[4];
-	uint16_t retval;
-
-	// read status
-	out[0] = CMD_GET_STATUS;
-	out[1] = 0;
-	out[2] = 0;
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	//printf("Status: 0x%x 0x%x, 0x%x\r\n", in[0], in[1], in[2]);
-
-	retval = (in[1] << 8) | in[2];
+	retval = reg_read(channel, REG_ABS_POS, 3);
 	
 	return retval;
 }
 
-uint32_t dspin_driver::get_pos()
-{
-	uint8_t out[4], in[4];
-	uint32_t retval = 0;
 
-	// read abs pos
-	out[0] = CMD_GET_PARAM | REG_ABS_POS;
-	out[1] = 0;
-	out[2] = 0;
-	out[3] = 0;
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 4; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
-
-	retval = (in[1] << 16) | (in[2] << 8) | in[3];
-	
-	return retval;
-}
-
-uint16_t dspin_driver::get_config()
-{
-	uint16_t retval;
-	uint8_t out[4], in[4];
-
-	// read abs pos
-	out[0] = CMD_GET_PARAM | REG_CONFIG;
-	out[1] = 0;
-	out[2] = 0;
-	out[3] = 0;
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
-
-	retval = (in[1] << 8) | in[2];
-	
-	return retval;
-}
-
-void 	 dspin_driver::set_config(uint16_t val)
-{
-	uint8_t out[4], in[4];
-
-	// read abs pos
-	out[0] = CMD_SET_PARAM | REG_CONFIG;
-	out[1] = (val & 0xff00) >> 8;
-	out[2] = val & 0x00ff;
-	out[3] = 0;
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	//printf("position: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
-
-}
-
-uint8_t  dspin_driver::get_adc_val()
-{
-	uint8_t out[4], in[4];
-
-	// read abs pos
-	out[0] = CMD_GET_PARAM | REG_ADC_OUT;
-	out[1] = 0;
-	out[2] = 0;
-	out[3] = 0;
-
-	for(int i = 0; i < 2; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-	}
-	
-	return in[1];
-}
-
-
+#if 0
 void dspin_driver::thwack_kvals()
 {
 	uint8_t out[4], in[4];
@@ -351,11 +236,10 @@ void dspin_driver::thwack_kvals()
 		mover_p->transfer(1, &out[i], &in[i]);
 		//usleep(1000);
 	}
-
-		
 }
+#endif
 
-void dspin_driver::find_home()
+void dspin_driver::find_home(uint32_t channel)
 {
 	uint8_t out[4], in[4];
 
@@ -364,103 +248,97 @@ void dspin_driver::find_home()
 	//
 	// This has the side effect of setting the abs pos register.
 	
+	uint32_t status;
+	
 	printf("find_home()\r\n");
 	
-	uint16_t status;
-	
-	status = get_status();
-	
-	if(status & STATUS_SWITCH_CLOSED_FLAG)
+	if(is_switch_closed(channel))
 	{
 	
-		printf("Already Home: status x%x\r\n", status);
+		printf("Already Home\r\n");
 		// home switch is closed...we're done
 		return;
 	}
 	
-	out[0] = CMD_GO_UNTIL | 0x01;
+	out[0] = CMD_GO_UNTIL;
 	out[1] = 0x00;
 	out[2] = 0x14;
 	out[3] = 0x14;
 
-	for(int i = 0; i < 4; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
+	send_cmd_single(channel, 4, out, in);
+	
+	usleep(100000);
 	
 	// now poll status...
-	while(is_switch_closed())
+	while(!is_switch_closed(channel))
 	{
-		printf("hunting...(0x%x)\r\n", status);
-		usleep(100000);
+		printf("hunting...\r\n");
+		usleep(1000000);
 	};
 
+#if 1
+	/// wait for busy to clear...
 	do
 	{
-		status = get_status();
+	
+		status = reg_read(channel, REG_STATUS, 2);
 		printf("hunting2...(0x%x)\r\n", status);
 		usleep(10000);
 	}while(!(status & STATUS_BUSY_FLAG)); // BZY is active low
-
-	printf("Found home!  Position 0x%x, ", get_pos());
+#endif
+	printf("Found home!  Position 0x%x, ", get_pos(channel));
 }
 
-void dspin_driver::release_switch()
+void dspin_driver::release_switch(uint32_t channel)
 {
 	uint8_t out[4], in[4];
-	uint16_t status;
+	//uint16_t status;
 	
-	out[0] = CMD_RELEASE_SW ;//| 0x01;
-	
-	for(int i = 0; i < 1; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
+	out[0] = CMD_RELEASE_SW | 0x01;
+		
+	send_cmd_single(channel, 1, out, in);
 
 	// now poll status...
-	while(is_switch_closed())
+	while(is_switch_closed(channel))
 	{
-		printf(" rel hunting...(0x%x)\r\n", status);
+		printf(" release hunting...\r\n");
 		usleep(100000);
 	};
 }
 
-bool dspin_driver::is_switch_closed()
+bool dspin_driver::is_switch_closed(uint32_t channel)
 {
-	uint16_t status;
+	uint32_t status;
 	
-	status = get_status();
+	status = reg_read(channel, REG_STATUS, 2);
+	
+	printf("is_closed[x%x]: status x%x, bool: x%x\r\n", channel, status, (status & STATUS_SWITCH_CLOSED_FLAG));
 	
 	return (status & STATUS_SWITCH_CLOSED_FLAG);
 }
 
-void dspin_driver::set_step_mode(bool full)
+void dspin_driver::set_step_mode(uint32_t channel, bool full)
 {
-	uint8_t out[4], in[4];
-	//uint32_t retval = 0;
-
-	// write step mode register
-	out[0] = CMD_SET_PARAM | REG_STEP_MODE;
-	out[1] = 0;
-	if(!full)
+	if(full)
 	{
-		// call it quarter step?
-		out[1] |= 0x02;
+		reg_write(channel, REG_STEP_MODE, 1, 0);
 	}
-
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 2; i++)
+	else
 	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
+		reg_write(channel, REG_STEP_MODE, 1, 0x02);
 	}
-
 }
 
-		
-void dspin_driver::run(bool forward)
+uint8_t  dspin_driver::get_adc_val(uint32_t channel)
+{
+	uint8_t val;
+
+	val = reg_read(channel, REG_ADC_OUT, 1);
+	
+	return val;
+}
+
+void dspin_driver::run(uint32_t channel, bool forward)
 {
 	uint8_t out[4], in[4];
 
@@ -472,19 +350,12 @@ void dspin_driver::run(bool forward)
 	}
 	out[1] = 0;
 	out[2] = 41;
-	//out[3] = 41;
+	out[3] = 41;
 
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 3; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	//printf("run resp: 0x%x 0x%x, 0x%x, 0x%x\r\n", in[0], in[1], in[2], in[3]);
+	send_cmd_single(channel, 4, out, in);
 }
 
-void dspin_driver::stop(bool hard)
+void dspin_driver::stop(uint32_t channel, bool hard)
 {
 	uint8_t out[4], in[4];
 
@@ -494,17 +365,10 @@ void dspin_driver::stop(bool hard)
 		out[0] |= 0x08;
 	}
 
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 1; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
-	}
-		
-	printf("sent %s stop\r\n", (hard ? "hard": "soft"));
+	send_cmd_single(channel, 1, out, in);
 }
-		
-void dspin_driver::move(bool forward, uint16_t steps)
+
+void dspin_driver::move(uint32_t channel, bool forward, uint16_t steps)
 {
 	uint8_t out[4], in[4];
 
@@ -520,15 +384,13 @@ void dspin_driver::move(bool forward, uint16_t steps)
 	out[2] = (steps & 0xff00) >> 8;
 	out[3] = steps & 0xff;
 
-	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 4; i++)
-	{
-		mover_p->transfer(1, &out[i], &in[i]);
-	}
+	send_cmd_single(channel, 4, out, in);
 		
-	printf("sent move, x%x, x%x\r\n", forward, steps);	
-}		
-		
+	//printf("sent move, x%x, x%x\r\n", forward, steps);	
+
+}
+
+	
 void dspin_driver::reset()
 {
 	uint8_t out[4], in[4];
@@ -537,56 +399,146 @@ void dspin_driver::reset()
 	out[0] = 0xc0;
 
 	// Funny chip select semantics...each byte needs a discrete ship select strobe, or it just shifts out the other side
-	for(int i = 0; i < 1; i++)
+	for(uint32_t i = 0; i < NUM_MOTORS; i++)
 	{
-		mover_p->transfer(1, &out[i], &in[i]);
-		//usleep(1000);
+		send_cmd_single(i, 1, out, in);
+	
+		sleep(1);
 	}
 		
 	printf("sent reset\r\n");
 }
+
 		
-#if 0		
-void dspin_driver::thread_member_func(int i)
+uint32_t dspin_driver::reg_read(uint32_t channel, uint32_t regnum,  uint32_t len)
 {
-	char c;
-	uint32_t buff_sz = NUM_STRINGS * CHARS_PER_STRING * 2;
-	uint8_t out[buff_sz];
-	uint32_t idx = 0;
+	// len parameter is the size of the register to read.
+
+	uint8_t out[4], in[4];
+	uint32_t accum = 0;
 	
-	// Only needed because the spi_mover only does bidirectional xfer...
-	// if it had a plain "write" we might not need this.
-	uint8_t in[NUM_STRINGS * CHARS_PER_STRING * 2];
-
-	pthread_mutex_lock(&data_mutex);
-
-	// Render the string buffer
-	for(int i = 0; i < NUM_STRINGS; i++)
+	if(channel >= NUM_MOTORS)
 	{
-		for(int j = CHARS_PER_STRING-1; j >= 0 ; j--)
-		{		
-			//std::cout << "i: " << i << " j: " j << std::endl;
-		
-			// working backwards
-			c = strings[i]->get_current(j);
-
-			out[idx] = (font[c] & 0xff00) >> 8;
-			out[idx+1] = font[c] & 0xff;
-
-			idx+=2;
+		return 0;
+	}
+	if(regnum > REG_STATUS)
+	{
+		return 0;
+	}
+	if((len == 0) || (len > 3))
+	{
+		return 0;
+	}
+	
+	out[0] = CMD_GET_PARAM | regnum;
+	out[1] = 0;
+	out[2] = 0;
+	out[3] = 0;
+	
+	if(send_cmd_single(channel, len+1, out, in))
+	{
+		for(uint32_t i = 0; i < len; i++)
+		{
+			accum <<= 8;
+			accum |= in[i+1];
 		}
-		
-		strings[i]->next_step();
 	}
-	
-	// then write the buffer to the dspins
-	if( ! mover_p->transfer(buff_sz, out, in))
-	{
-		std::cerr << "dspin transfer() error!" << std::endl;
-	}
-	
-	
-	pthread_mutex_unlock(&data_mutex);
+
+	return accum;
 }
 
-#endif
+bool dspin_driver::reg_write(uint32_t channel, uint32_t regnum,  uint32_t len, uint32_t value)
+{
+	// len parameter is the size of the register to read.
+
+	uint8_t out[4], in[4];
+	uint32_t accum = 0;
+	
+	if(channel >= NUM_MOTORS)
+	{
+		return 0;
+	}
+	if(regnum > REG_STATUS)
+	{
+		return 0;
+	}
+	if((len == 0) || (len > 3))
+	{
+		return 0;
+	}
+
+	out[0] = CMD_SET_PARAM | regnum;
+	for(uint32_t i = 0; i < len; i++)
+	{
+		out[i+1] = (value >> (8*(len-i-1))) & 0xff;
+	}
+	
+	if(send_cmd_single(channel, len+1, out, in))
+	{
+		return true;
+	}
+
+	return accum;
+}
+		
+bool dspin_driver::send_cmd_single(uint32_t channel, uint32_t len, uint8_t * out_data, uint8_t * in_data)
+{
+	uint8_t out[NUM_MOTORS], in[NUM_MOTORS];
+	
+	printf("num x%x, chan x%x, len x%x\r\n", NUM_MOTORS, channel, len);
+	
+	if(channel >= NUM_MOTORS)
+	{
+		printf("MOTOR ERROR: bad channel num requested: 0x%x\r\n", channel);
+		return(false);
+	}
+
+#if 1	
+	
+	// the commands are formatted funny, due to that chip select funkyness.
+	// We'll send all of the command bytes in one chunk, then send all of the data bytes in separate chunks.
+	// so we'll do len # of transfers, of channel bytes each.
+	// The channels we were addressing should just ignore it
+	
+	for(uint32_t i = 0; i < len; i++)
+	{
+		//printf("a\r\n");
+		// set everything to NOP cmds...
+		memset(out, CMD_NOP, NUM_MOTORS);
+	
+		//printf("b\r\n");
+		// then overwrite the one we want to actually send...
+		out[channel] = out_data[i] ;
+		
+		printf("Sending :");
+		for(uint32_t ii = 0; ii < NUM_MOTORS; ii++)
+		{
+			printf("x%x:x%x ",ii,out[ii]);
+		}
+		printf("\r\n");
+
+		// And send it
+		if(!mover_p->transfer(NUM_MOTORS, out, in))
+		{
+			printf("ERROR: spi transfer...\r\n");
+			return false;
+		}
+
+		printf("Received :");
+		for(uint32_t ii = 0; ii < NUM_MOTORS; ii++)
+		{
+			printf("x%x:x%x ",ii,in[ii]);
+		}
+		printf("\r\n");
+
+		
+		//printf("d\r\n");
+		// then copy back the response
+		in_data[i] = in[channel];
+
+		//printf("e\r\n");
+	}
+	
+#endif	
+	return true;
+}

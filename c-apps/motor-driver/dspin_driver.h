@@ -9,38 +9,40 @@
 class dspin_driver
 {
 	public:
-		static const int NUM_MOTORS = 1;//5;
+		static const uint32_t NUM_MOTORS = 2;//5;
 	
 		dspin_driver();
 		~dspin_driver();
 		
 		void test();
-		void test2();
+		void test2(uint32_t channel);
+		void test3();
 		
-		uint16_t get_status();
-		uint32_t get_pos();
+		bool reset(uint32_t channel);
+		bool set_config(uint32_t channel, uint8_t kval, bool full);
 		
-		uint16_t get_config();
-		void 	 set_config(uint16_t val);
+		void find_home(uint32_t channel);
+		void release_switch(uint32_t channel);
+		bool is_switch_closed(uint32_t channel);
+
+		void set_step_mode(uint32_t channel, bool full);
 		
-		uint8_t  get_adc_val();
+		uint8_t  get_adc_val(uint32_t channel);
 		
-		void thwack_kvals();
+		uint32_t get_pos(uint32_t channel);
+
+		void run(uint32_t channel, bool forward);
+		void stop(uint32_t channel, bool hard);
+		void move(uint32_t channel, bool forward, uint16_t steps);
 		
-		void find_home();
-		void release_switch();
-		bool is_switch_closed();
-		
-		void set_step_mode(bool full);
-		
-		void run(bool forward);
-		void stop(bool hard);
-		void move(bool forward, uint16_t steps);
 		void reset();
 		
 	private:
 	
-		
+		uint32_t reg_read(uint32_t channel, uint32_t regnum, uint32_t len);
+		bool     reg_write(uint32_t channel, uint32_t regnum,  uint32_t len, uint32_t value);
+	
+		bool send_cmd_single(uint32_t channel, uint32_t len, uint8_t * out_data, uint8_t * in_data);
 	
 		spi_mover * mover_p;
 		
