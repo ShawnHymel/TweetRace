@@ -393,9 +393,6 @@ void dspin_driver::move(uint32_t channel, bool forward, uint16_t steps)
 {
 	uint8_t out[4], in[4];
 
-	// A step was really tiny...
-	steps *= 10;
-		
 	out[0] = CMD_MOVE;
 	if(forward)
 	{
@@ -506,7 +503,7 @@ bool dspin_driver::send_cmd_single(uint32_t channel, uint32_t len, uint8_t * out
 {
 	uint8_t out[NUM_MOTORS], in[NUM_MOTORS];
 	
-	printf("num x%x, chan x%x, len x%x\r\n", NUM_MOTORS, channel, len);
+	//printf("num x%x, chan x%x, len x%x\r\n", NUM_MOTORS, channel, len);
 	
 	if(channel >= NUM_MOTORS)
 	{
