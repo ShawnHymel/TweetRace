@@ -1,3 +1,4 @@
+;-----------------------------------------------------------------------------
 ; Game Settings
 ;
 ; terms: hashtags to search for on Twitter feed
@@ -10,18 +11,25 @@
 ; fps: framerate for main display (monitor)
 ; horse_tick: how often horses move (in milliseconds)
 ; debug: change to set debug output
-;           0 = regular game play
-;           1 = output to console. Change and recompile hoss_system.h
+;           0 = regular game play (no output to console)
+;           1 = motors/LEDs on, monitor display, output to console
+;           2 = motors/LEDs on, no monitor display, output to console
+;           3 = no motors/LEDs, monitor display, output to console
+;           4 = no motors/LEDs, no monitor, output to console only
+;           Note: for debug 2+, need to config and recompile hoss_system.h
+;-----------------------------------------------------------------------------
 [game_settings]
 terms = #omg,#hello,#diy,#robot,#fun
-spd_mult = 100
+spd_mult = 10
 fps = 20
 horse_tick = 1000
-debug = 1
+debug = 4
 
+;-----------------------------------------------------------------------------
 ; Twitter Authentication
 ;
 ; Fill out the keys below from dev.twitter.com
+;-----------------------------------------------------------------------------
 [twitter_auth]
 app_key = 0SGK64SYL8Y0R4tCbcm6SA
 app_secret = f1RFySmg0RVRVtTGnvu9NvrWm73IT7C8Z1gpcYZAwo

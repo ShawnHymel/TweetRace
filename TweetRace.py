@@ -110,7 +110,7 @@ def display_terms():
     if g_debug > 0:
         for s in out_strs:
             print 'Displaying: ', s
-    else:
+    if g_debug >= 0 and g_debug < 3:
         g_led_display = display_driver.display_driver()
         for str_index, s in enumerate(out_strs):   
 
@@ -210,7 +210,8 @@ def main():
 
     # Create a new hoss system (motor driver) and reset
     hp = motor_driver.hoss_system()
-    #hp.find_home()
+    if g_debug < 3:
+        hp.find_home()
     time.sleep(1)
 
     # Show terms on alphanumeric displays
@@ -223,11 +224,13 @@ def main():
     pygame.time.set_timer(pygame.USEREVENT + 1, g_horse_tick)
 
     # Setup display
-    g_screen = pygame.display.set_mode(RESOLUTION)
+    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+        g_screen = pygame.display.set_mode(RESOLUTION)
     g_game_time = 0;
     pygame.init()
     fps_clock = pygame.time.Clock()
-    #pygame.mouse.set_visible(False)
+    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+        pygame.mouse.set_visible(False)
 
     # Main game loop
     g_mainloop = True
@@ -264,8 +267,9 @@ def main():
 
         # Update screen
         g_game_time = pygame.time.get_ticks()
-        draw_screen()
-        pygame.display.update()
+        if g_debug == 0 or g_debug == 1 or g_debug == 3:
+            draw_screen()
+            pygame.display.update()
         fps_clock.tick(g_fps)
 
     # Game over. Declare a winner.
