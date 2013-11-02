@@ -39,5 +39,7 @@ int main()
 
 	sleep(5);
 
+	delete(hp);
+
 	return 0;
 }
