@@ -7,7 +7,6 @@ from pyscope import pyscope
 
 # Constants
 FPS = 30                    # Frames per second
-RESOLUTION = [540, 960]     # Yes, I know the background is hardcoded. Deal.
 GAME_TIME = 120000          # Game time (milliseconds)
 
 # Common colors
@@ -17,14 +16,18 @@ BLACK = 0,0,0
 BLUE  = 0,0,255
 RED   = 255,0,0
 
+# Globals
+scope = None
+
 # Main
 def main():
+    global scope
     global FPSCLOCK, mainloop, screen, timer
     global font_title_1, font_title_2, font_timer
     mainloop = True
 
     # Setup display
-    screen = pygame.display.set_mode(RESOLUTION)
+    #screen = pygame.display.set_mode(RESOLUTION)
     pygame.init()
     scope = pyscope()
     FPSCLOCK = pygame.time.Clock()
@@ -54,19 +57,21 @@ def main():
 # Handle graphics on the screen
 def drawScreen():
 
+    global scope
+
     # Create background
-    rect_bg = pygame.draw.rect(screen, BLACK, (0, 0, 540, 960), 0)
-    rect_title = pygame.draw.rect(screen, WHITE, (20, 20, 500, 100), 0)
-    rect_game_mode = pygame.draw.rect(screen, WHITE, (20, 140, 300, 60), 0)
-    rect_timer = pygame.draw.rect(screen, WHITE, (340, 140, 180, 60), 0)
+    rect_bg = pygame.draw.rect(scope.screen, BLACK, (0, 0, 540, 960), 0)
+    rect_title = pygame.draw.rect(scope.screen, WHITE, (20, 20, 500, 100), 0)
+    rect_game_mode = pygame.draw.rect(scope.screen, WHITE, (20, 140, 300, 60), 0)
+    rect_timer = pygame.draw.rect(scope.screen, WHITE, (340, 140, 180, 60), 0)
     
     # Draw title
     title1 = "The Great American"
     title2 = "Tweet Race"
     text_title_1 = font_title_1.render(title1,1,GREEN)
     text_title_2 = font_title_2.render(title2,1,GREEN)
-    screen.blit(text_title_1, (40, 25))
-    screen.blit(text_title_2, (40, 70))
+    scope.screen.blit(text_title_1, (40, 25))
+    scope.screen.blit(text_title_2, (40, 70))
 
     # Draw remaining time
     game_time = GAME_TIME - pygame.time.get_ticks()
@@ -86,7 +91,7 @@ def drawScreen():
         else:
             game_time_str = game_time_str + ':' + str(game_time_sec)
     text_timer = font_timer.render(game_time_str,1,RED)
-    screen.blit(text_timer, (341, 140))
+    scope.screen.blit(text_timer, (341, 140))
     
 # Call main
 main()
