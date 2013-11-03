@@ -20,10 +20,10 @@
 ;-----------------------------------------------------------------------------
 [game_settings]
 terms = #omg,#hello,#diy,#robot,#fun
-spd_mult = 10
+spd_mult = 1
 fps = 20
 horse_tick = 1000
-debug = 4
+debug = 3
 
 ;-----------------------------------------------------------------------------
 ; Twitter Authentication

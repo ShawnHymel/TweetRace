@@ -17,12 +17,17 @@ sys.path.append(path)
 path = os.path.join(os.path.dirname(__file__), 'py_apps/motor_driver')
 sys.path.append(path)
 
+# Add pyscope module to path
+path = os.path.join(os.path.dirname(__file__), 'py_apps/pyscope')
+sys.path.append(path)
+
 # Add twit_feed module to path
 path = os.path.join(os.path.dirname(__file__), 'py_apps/twit_feed')
 sys.path.append(path)
 
 import display_driver
 import motor_driver
+import pyscope
 import twit_feed
 
 #-----------------------------------------------------------------------------
@@ -63,7 +68,7 @@ g_num_horses = 0
 g_fps = None
 g_twitter_auth = {}
 g_mainloop = None
-g_screen = None
+g_scope = None
 g_led_display = None
 
 #-----------------------------------------------------------------------------
@@ -131,7 +136,7 @@ def display_terms():
 # Handle graphics on the screen
 def draw_screen():
 
-    global g_screen
+    global g_scope
 
     # Create fonts
     font_mode = pygame.font.Font(None, 96)
@@ -140,22 +145,24 @@ def draw_screen():
     font_title_2 = pygame.font.Font(None, 68)
 
     # Create background
-    rect_bg = pygame.draw.rect(g_screen, BLACK, (0, 0, 540, 960), 0)
-    rect_title = pygame.draw.rect(g_screen, WHITE, (20, 20, 500, 100), 0)
-    rect_game_mode = pygame.draw.rect(g_screen, WHITE, (20, 140, 210, 60), 0)
-    rect_timer = pygame.draw.rect(g_screen, WHITE, (250, 140, 270, 60), 0)
+    rect_bg = pygame.draw.rect(g_scope.screen, BLACK, (0, 0, 540, 960), 0)
+    rect_title = pygame.draw.rect(g_scope.screen, WHITE, (20, 20, 500, 100), 0)
+    rect_game_mode = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                        (20, 140, 210, 60), 0)
+    rect_timer = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                        (250, 140, 270, 60), 0)
     
     # Draw title
     title1 = "The Great American"
     title2 = "Tweet Race"
     text_title_1 = font_title_1.render(title1,1,BLACK)
     text_title_2 = font_title_2.render(title2,1,BLACK)
-    g_screen.blit(text_title_1, (40, 25))
-    g_screen.blit(text_title_2, (40, 70))
+    g_scope.screen.blit(text_title_1, (40, 25))
+    g_scope.screen.blit(text_title_2, (40, 70))
 
     # Draw game mode
     mode_str = font_mode.render('Race!',1,BLACK)
-    g_screen.blit(mode_str, (30, 135))
+    g_scope.screen.blit(mode_str, (30, 135))
 
     # Draw remaining time
     if g_game_time <= 0:
@@ -178,7 +185,7 @@ def draw_screen():
         else:
             game_time_str = game_time_str + ':' + str(game_time_ms)
     text_timer = font_timer.render(game_time_str,1,RED)
-    g_screen.blit(text_timer, (255, 135))
+    g_scope.screen.blit(text_timer, (255, 135))
 
 #-----------------------------------------------------------------------------
 # Main
@@ -194,7 +201,7 @@ def main():
     global g_debug
     global g_twitter_auth
     global g_mainloop
-    global g_screen
+    global g_scope
     global g_led_display
 
     # Read in parameters file and configure game
@@ -225,12 +232,12 @@ def main():
 
     # Setup display
     if g_debug == 0 or g_debug == 1 or g_debug == 3:
-        g_screen = pygame.display.set_mode(RESOLUTION)
+        g_scope = pyscope.pyscope()
     g_game_time = 0;
     pygame.init()
     fps_clock = pygame.time.Clock()
-    if g_debug == 0 or g_debug == 1 or g_debug == 3:
-        pygame.mouse.set_visible(False)
+    #if g_debug == 0 or g_debug == 1 or g_debug == 3:
+    #    pygame.mouse.set_visible(False)
 
     # Main game loop
     g_mainloop = True

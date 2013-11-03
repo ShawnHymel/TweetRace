@@ -3,7 +3,8 @@ import pygame
 import time
 import random
 
-# Based on the "Pi Video Output Using PyGame" by Kevin Townsend
+# "Pi Video Output Using PyGame"
+# All credit goes to Kevin Townsend from Adafruit Industries for this module
 # http://learn.adafruit.com/pi-video-output-using-pygame/overview
 
 class pyscope :
