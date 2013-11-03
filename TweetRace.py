@@ -290,11 +290,9 @@ def main():
             print 'End game'
             print 'No winner. All the horses suck.'
 
-    print 'TEST 1'
+    # Clean up Twitter feed and pygame
     tf.stop()
-    print 'TEST 2'
     pygame.quit()
-    print 'TEST 3'
 
 # Run main
 main()
