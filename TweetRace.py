@@ -231,13 +231,13 @@ def main():
     pygame.time.set_timer(pygame.USEREVENT + 1, g_horse_tick)
 
     # Setup display
-    if g_debug == 0 or g_debug == 1 or g_debug == 3:
-        g_scope = pyscope.pyscope()
     g_game_time = 0;
     pygame.init()
+    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+        g_scope = pyscope.pyscope()
     fps_clock = pygame.time.Clock()
-    #if g_debug == 0 or g_debug == 1 or g_debug == 3:
-    #    pygame.mouse.set_visible(False)
+    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+        pygame.mouse.set_visible(False)
 
     # Main game loop
     g_mainloop = True
