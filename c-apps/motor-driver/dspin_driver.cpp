@@ -72,8 +72,10 @@ static const uint8_t  REG_STATUS          = 0x19;
 //static const uint8_t  REG_RESERVED2 = 0x1b;
 
 
-dspin_driver::dspin_driver()
+dspin_driver::dspin_driver(bool verbose)
 {
+	m_verbose = verbose;
+
 	mover_p = new spi_mover("/dev/spidev0.1");
 	
 	mover_p->set_mode(true, true);
@@ -123,7 +125,7 @@ void dspin_driver::test2(uint32_t chan)
 	
 	sleep(1);
 	
-	find_home(chan);
+	find_home(chan, true);
 	
 	sleep(1);
 	
@@ -260,7 +262,7 @@ void dspin_driver::thwack_kvals()
 }
 #endif
 
-void dspin_driver::find_home(uint32_t channel)
+void dspin_driver::find_home(uint32_t channel, bool blocking)
 {
 	uint8_t out[4], in[4];
 
@@ -271,12 +273,17 @@ void dspin_driver::find_home(uint32_t channel)
 	
 	uint32_t status;
 	
-	printf("find_home()\r\n");
+	if(m_verbose)
+	{
+		printf("find_home()\r\n");
+	}
 	
 	if(is_switch_closed(channel))
 	{
-	
-		printf("Already Home\r\n");
+		if(m_verbose)
+		{	
+			printf("Already Home\r\n");
+		}
 		// home switch is closed...we're done
 		return;
 	}
@@ -287,27 +294,44 @@ void dspin_driver::find_home(uint32_t channel)
 	out[3] = 0x14;
 
 	send_cmd_single(channel, 4, out, in);
-	
+
 	usleep(100000);
 	
-	// now poll status...
-	while(!is_switch_closed(channel))
+	if(blocking)
 	{
-		printf("hunting...\r\n");
-		usleep(1000000);
-	};
+		// If blocking, we will monitor the status, and not return until 
+		// the home switch trips.
+		//
+		// If not blocking, we assume that the client can check for it themselves...
+	
+		// now poll status...
+		while(!is_switch_closed(channel))
+		{
+			if(m_verbose)
+			{		
+				printf("hunting...\r\n");
+			}
+			usleep(1000000);
+		};
 
 #if 1
-	/// wait for busy to clear...
-	do
-	{
+		/// wait for busy to clear...
+		do
+		{
 	
-		status = reg_read(channel, REG_STATUS, 2);
-		printf("hunting2...(0x%x)\r\n", status);
-		usleep(10000);
-	}while(!(status & STATUS_BUSY_FLAG)); // BZY is active low
+			status = reg_read(channel, REG_STATUS, 2);
+			if(m_verbose)
+			{
+				printf("hunting2...(0x%x)\r\n", status);
+			}
+			usleep(10000);
+		}while(!(status & STATUS_BUSY_FLAG)); // BZY is active low
 #endif
-	printf("Found home!  Position 0x%x, ", get_pos(channel));
+		if(m_verbose)
+		{
+			printf("Found home!  Position 0x%x, ", get_pos(channel));
+		}
+	}
 }
 
 void dspin_driver::release_switch(uint32_t channel)
@@ -322,7 +346,10 @@ void dspin_driver::release_switch(uint32_t channel)
 	// now poll status...
 	while(is_switch_closed(channel))
 	{
-		printf(" release hunting...\r\n");
+		if(m_verbose)
+		{
+			printf(" release hunting...\r\n");
+		}
 		usleep(100000);
 	};
 }
@@ -333,7 +360,10 @@ bool dspin_driver::is_switch_closed(uint32_t channel)
 	
 	status = reg_read(channel, REG_STATUS, 2);
 	
-	printf("is_closed[x%x]: status x%x, bool: x%x\r\n", channel, status, (status & STATUS_SWITCH_CLOSED_FLAG));
+	if(m_verbose)
+	{
+		printf("is_closed[x%x]: status x%x, bool: x%x\r\n", channel, status, (status & STATUS_SWITCH_CLOSED_FLAG));
+	}
 	
 	return (status & STATUS_SWITCH_CLOSED_FLAG);
 }
@@ -423,8 +453,11 @@ void dspin_driver::reset()
 	
 		sleep(1);
 	}
-		
-	printf("sent reset\r\n");
+	
+	if(m_verbose)
+	{
+		printf("sent reset\r\n");
+	}
 }
 
 		

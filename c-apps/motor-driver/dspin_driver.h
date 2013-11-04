@@ -11,7 +11,7 @@ class dspin_driver
 	public:
 		static const uint32_t NUM_MOTORS = 2;//5;
 	
-		dspin_driver();
+		dspin_driver(bool verbose = false);
 		~dspin_driver();
 		
 		void test();
@@ -21,7 +21,7 @@ class dspin_driver
 		bool reset(uint32_t channel);
 		bool set_config(uint32_t channel, uint8_t kval, bool full);
 		
-		void find_home(uint32_t channel);
+		void find_home(uint32_t channel, bool blocking);
 		void release_switch(uint32_t channel);
 		bool is_switch_closed(uint32_t channel);
 
@@ -44,8 +44,9 @@ class dspin_driver
 	
 		bool send_cmd_single(uint32_t channel, uint32_t len, uint8_t * out_data, uint8_t * in_data);
 	
+	
 		spi_mover * mover_p;
-		
+		bool        m_verbose;
 };
 
 #endif // keepout

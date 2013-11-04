@@ -12,7 +12,7 @@ int main()
 
 	hoss_system * hp;
 	
-	hp = new hoss_system();
+	hp = new hoss_system(true);
 	
 	// wont return until they're all at the starting line.
 	hp->find_home();

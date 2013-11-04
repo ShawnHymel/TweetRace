@@ -5,9 +5,14 @@
 
 
 
-hoss_system::hoss_system()
+hoss_system::hoss_system(bool verbose)
 {
-	printf("HS: constructor\r\n");
+	m_verbose = verbose;
+
+	if(m_verbose)
+	{
+		printf("HS: constructor\r\n");
+	}
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
@@ -21,7 +26,7 @@ hoss_system::hoss_system()
 	
 #else
 	
-	m_motor_p = new dspin_driver();
+	m_motor_p = new dspin_driver(verbose);
 
 	m_motor_p->reset();
 
@@ -40,7 +45,10 @@ hoss_system::hoss_system()
 
 hoss_system::~hoss_system()
 {
-	printf("HS: destructor\r\n");
+	if(m_verbose)
+	{
+		printf("HS: destructor\r\n");
+	}
 
 #ifdef DUMMY
 #else
@@ -54,8 +62,10 @@ hoss_system::~hoss_system()
 		
 void hoss_system::find_home()
 {
-	printf("HS: find_home\r\n");
-
+	if(m_verbose)
+	{
+		printf("HS: find_home\r\n");
+	}
 
 #ifdef DUMMY
 
@@ -65,7 +75,21 @@ void hoss_system::find_home()
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		m_motor_p->find_home(i);
+		m_motor_p->find_home(i, false);
+		// false means nonblocking - start resetting, then return
+	}
+	
+	// now poll status...
+	for(uint32_t i = 0; i < NUM_HOSSES; i++)
+	{
+		while(!is_switch_closed(i))
+		{
+			if(m_verbose)
+			{
+				printf("hunting...[%d]...\r\n", i);
+			}
+			usleep(1000000);
+		};
 	}
 
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
@@ -81,7 +105,10 @@ void hoss_system::find_home()
 
 bool hoss_system::is_any_at_far_end()
 {
-	printf("HS: is_any_at_far_end\r\n");
+	if(m_verbose)
+	{
+		printf("HS: is_any_at_far_end\r\n");
+	}
 
 #ifdef DUMMY
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
@@ -102,7 +129,10 @@ bool hoss_system::is_any_at_far_end()
 	{
 		val = m_motor_p->get_adc_val(i);
 
-		printf("ADC[%d]: 0x%x\r\n", i, val);
+		if(m_verbose)
+		{
+			printf("ADC[%d]: 0x%x\r\n", i, val);
+		}
 		
 		if(val & 0x10)
 		{
@@ -119,7 +149,10 @@ bool hoss_system::is_any_at_far_end()
 
 uint32_t hoss_system::get_winner()
 {
-	printf("HS: get_winner\r\n");
+	if(m_verbose)
+	{
+		printf("HS: get_winner\r\n");
+	}
 	
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
@@ -134,14 +167,20 @@ uint32_t hoss_system::get_winner()
 
 hoss_status hoss_system::get_status(uint32_t track_num)
 {
-	printf("HS: get_status 0x%x\r\n", track_num);
+	if(m_verbose)
+	{
+		printf("HS: get_status 0x%x\r\n", track_num);
+	}
 
 	return m_status[track_num];
 }
 		
 bool hoss_system::set_race_value(uint32_t track_num, uint32_t increment)
 {
-	printf("HS: set_race_value 0x%x, 0x%x\r\n", track_num, increment);
+	if(m_verbose)
+	{
+		printf("HS: set_race_value 0x%x, 0x%x\r\n", track_num, increment);
+	}
 
 	if(track_num >= NUM_HOSSES)
 	{
@@ -156,12 +195,15 @@ bool hoss_system::set_race_value(uint32_t track_num, uint32_t increment)
 
 bool hoss_system::race()
 {
-	printf("Racing! 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\r\n", 
-			m_increments[0],
-			m_increments[1],
-			m_increments[2],
-			m_increments[3],
-			m_increments[4]);
+	if(m_verbose)
+	{
+		printf("Racing! 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\r\n", 
+				m_increments[0],
+				m_increments[1],
+				m_increments[2],
+				m_increments[3],
+				m_increments[4]);
+	}
 
 #ifdef DUMMY
 

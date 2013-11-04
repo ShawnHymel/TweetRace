@@ -30,7 +30,7 @@ enum hoss_status
 class hoss_system
 {
 	public:
-		hoss_system();
+		hoss_system(bool verbose = false);
 		~hoss_system();
 		
 		void find_home();
@@ -50,6 +50,8 @@ class hoss_system
 		uint32_t    m_increments[NUM_HOSSES];
 
 		uint32_t    m_positions[NUM_HOSSES];
+		
+		bool        m_verbose;
 		
 #ifndef DUMMY	
 		dspin_driver * m_motor_p;
