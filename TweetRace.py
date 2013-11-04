@@ -38,7 +38,6 @@ import twit_feed
 PARAM_FILE = 'param.txt'
 
 # Other game paramters
-RESOLUTION = [540, 960]
 SETTINGS_SECTION = 'game_settings'
 SETTINGS_TERMS = 'terms'
 SETTINGS_SPD_MULT = 'spd_mult'
@@ -47,6 +46,7 @@ SETTINGS_HORSE_TICK = 'horse_tick'
 SETTINGS_DEBUG = 'debug'
 TWITTER_SECTION = 'twitter_auth'
 TWITTER_ARGS = ['app_key', 'app_secret', 'oauth_token', 'oauth_token_secret']
+TWEET_LINE_SPACING = -2
 
 # Common colors
 WHITE = 255,255,255
@@ -70,6 +70,7 @@ g_twitter_auth = {}
 g_mainloop = None
 g_scope = None
 g_led_display = None
+g_tweet_list = None
 
 #-----------------------------------------------------------------------------
 # Functions
@@ -137,12 +138,14 @@ def display_terms():
 def draw_screen():
 
     global g_scope
+    global g_tweet_list
 
     # Create fonts
     font_mode = pygame.font.Font(None, 96)
     font_timer = pygame.font.Font(None, 96)
     font_title_1 = pygame.font.Font(None, 68)
     font_title_2 = pygame.font.Font(None, 68)
+    font_tweets = pygame.font.Font(None, 24)
 
     # Create background
     rect_bg = pygame.draw.rect(g_scope.screen, BLACK, (0, 0, 540, 960), 0)
@@ -151,6 +154,8 @@ def draw_screen():
                                                         (20, 140, 210, 60), 0)
     rect_timer = pygame.draw.rect(g_scope.screen, WHITE, \
                                                         (250, 140, 270, 60), 0)
+    rect_tweets = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                        (20, 220, 500, 500), 0)
     
     # Draw title
     title1 = "The Great American"
@@ -164,7 +169,7 @@ def draw_screen():
     mode_str = font_mode.render('Race!',1,BLACK)
     g_scope.screen.blit(mode_str, (30, 135))
 
-    # Draw remaining time
+    # Draw game time
     if g_game_time <= 0:
         game_time_str = '00:00:00'
     else:
@@ -184,8 +189,39 @@ def draw_screen():
             game_time_str = game_time_str + ':0' + str(game_time_ms)
         else:
             game_time_str = game_time_str + ':' + str(game_time_ms)
-    text_timer = font_timer.render(game_time_str,1,RED)
+    text_timer = font_timer.render(game_time_str, 1 ,RED)
     g_scope.screen.blit(text_timer, (255, 135))
+
+    # Draw tweets
+    for m in g_tweet_list:
+        if g_debug > 0:
+            print m, '\n'
+        if g_debug == 0 or g_debug == 1 or g_debug == 3:
+            draw_tweet(m, rect_tweets, font_tweets)
+
+# Draw a tweet on a surface and wrap text
+def draw_tweet(text, rect_tweets, font_tweets):
+
+    # Find bounds of rectangle and text
+    y = rect_tweets.top
+    font_height = font_tweets.size("Tg")[1]
+    
+    # Loop through a tweet and wrap the text, if necessary
+    while text:
+        i = 1
+
+        # Determine maximum width of the text
+        while font_tweets.size(text[:i])[0] < rect_tweets.width and \
+                                                        i < len(text):
+            i += 1
+
+        # Render the line
+        image = font_tweets.render(text, 1, BLACK)
+        g_scope.screen.blit(image, (rect_tweets.left, y))
+        y += font_height + TWEET_LINE_SPACING
+
+        # Remove the text we just rendered
+        text = text[i:]
 
 #-----------------------------------------------------------------------------
 # Main
@@ -203,6 +239,7 @@ def main():
     global g_mainloop
     global g_scope
     global g_led_display
+    global g_tweet_list
 
     # Read in parameters file and configure game
     config_params()
@@ -246,10 +283,9 @@ def main():
     while g_mainloop:
 
         # Print tweets
-        tweet_list = tf.get_tweets()
-        if g_debug > 0:
-            for m in tweet_list:
-                print m, '\n'
+        g_tweet_list = tf.get_tweets()
+
+                
 
         # Handle game events
         for event in pygame.event.get():
