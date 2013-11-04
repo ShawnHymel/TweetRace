@@ -80,8 +80,8 @@ class hoss_system(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, hoss_system, name)
     __repr__ = _swig_repr
-    def __init__(self): 
-        this = _motor_driver.new_hoss_system()
+    def __init__(self, verbose=False): 
+        this = _motor_driver.new_hoss_system(verbose)
         try: self.this.append(this)
         except: self.this = this
     __swig_destroy__ = _motor_driver.delete_hoss_system

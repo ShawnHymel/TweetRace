@@ -70,7 +70,7 @@ g_twitter_auth = {}
 g_mainloop = None
 g_scope = None
 g_led_display = None
-g_tweet_list = None
+g_tweet_list = []
 
 #-----------------------------------------------------------------------------
 # Functions
@@ -148,14 +148,18 @@ def draw_screen():
     font_tweets = pygame.font.Font(None, 24)
 
     # Create background
-    rect_bg = pygame.draw.rect(g_scope.screen, BLACK, (0, 0, 540, 960), 0)
-    rect_title = pygame.draw.rect(g_scope.screen, WHITE, (20, 20, 500, 100), 0)
+    rect_bg = pygame.draw.rect(g_scope.screen, BLACK, \
+                                                    (0, 0, 540, 960), 0)
+    rect_title = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 20, 500, 100), 0)
     rect_game_mode = pygame.draw.rect(g_scope.screen, WHITE, \
-                                                        (20, 140, 210, 60), 0)
+                                                    (20, 140, 210, 60), 0)
     rect_timer = pygame.draw.rect(g_scope.screen, WHITE, \
-                                                        (250, 140, 270, 60), 0)
+                                                    (250, 140, 270, 60), 0)
     rect_tweets = pygame.draw.rect(g_scope.screen, WHITE, \
-                                                        (20, 220, 500, 500), 0)
+                                                    (20, 220, 500, 500), 0)
+    rect_scores = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 740, 500, 100), 0)
     
     # Draw title
     title1 = "The Great American"
@@ -192,36 +196,52 @@ def draw_screen():
     text_timer = font_timer.render(game_time_str, 1 ,RED)
     g_scope.screen.blit(text_timer, (255, 135))
 
-    # Draw tweets
-    for m in g_tweet_list:
-        if g_debug > 0:
-            print m, '\n'
+    # Draw tweets. Remove from the list ones that don't fit anymore.
+    offset = 0
+    for i, m in enumerate(g_tweet_list):
         if g_debug == 0 or g_debug == 1 or g_debug == 3:
-            draw_tweet(m, rect_tweets, font_tweets)
+            num_lines, text = draw_tweet(m, rect_tweets, font_tweets, offset)
+            offset += (num_lines + 1)
+            if text:
+                g_tweet_list = g_tweet_list[:i]
+                break
 
-# Draw a tweet on a surface and wrap text
-def draw_tweet(text, rect_tweets, font_tweets):
+# Draw a tweet on a surface and wrap text.
+# Return number of lines used and any text that did not fit
+def draw_tweet(text, rect_tweets, font_tweets, offset):
 
     # Find bounds of rectangle and text
-    y = rect_tweets.top
     font_height = font_tweets.size("Tg")[1]
+    y = rect_tweets.top + offset * (font_height + TWEET_LINE_SPACING)
     
     # Loop through a tweet and wrap the text, if necessary
+    num_lines = 0
     while text:
         i = 1
+
+        # Determine if the row of text will be outside the rectangle
+        if y + font_height > rect_tweets.bottom:
+            break
 
         # Determine maximum width of the text
         while font_tweets.size(text[:i])[0] < rect_tweets.width and \
                                                         i < len(text):
             i += 1
 
+        # If text was wrapped, break on previous letter     
+        if i < len(text): 
+           i -= 1
+
         # Render the line
-        image = font_tweets.render(text, 1, BLACK)
-        g_scope.screen.blit(image, (rect_tweets.left, y))
+        image = font_tweets.render(text[:i], 1, BLACK)
+        g_scope.screen.blit(image, (rect_tweets.left + 1, y))
         y += font_height + TWEET_LINE_SPACING
 
         # Remove the text we just rendered
         text = text[i:]
+        num_lines += 1
+
+    return num_lines, text
 
 #-----------------------------------------------------------------------------
 # Main
@@ -253,7 +273,10 @@ def main():
         print 'Search terms: ', g_terms
 
     # Create a new hoss system (motor driver) and reset
-    hp = motor_driver.hoss_system()
+    if g_debug == 0:
+        hp = motor_driver.hoss_system(False)
+    else:
+        hp = motor_driver.hoss_system(True)
     if g_debug < 3:
         hp.find_home()
     time.sleep(1)
@@ -282,10 +305,12 @@ def main():
         print 'Start game'
     while g_mainloop:
 
-        # Print tweets
-        g_tweet_list = tf.get_tweets()
-
-                
+        # Prepend global list with tweets
+        tweets = tf.get_tweets()
+        for m in reversed(tweets):
+            g_tweet_list.insert(0, m)
+            if g_debug > 0:
+                print m, '\n'
 
         # Handle game events
         for event in pygame.event.get():
