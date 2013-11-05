@@ -31,7 +31,17 @@ debug = 3
 ; Fill out the keys below from dev.twitter.com
 ;-----------------------------------------------------------------------------
 [twitter_auth]
-app_key = 0SGK64SYL8Y0R4tCbcm6SA
-app_secret = f1RFySmg0RVRVtTGnvu9NvrWm73IT7C8Z1gpcYZAwo
-oauth_token = 1969690717-lDn8UEoAIp5h2zITLyPtfGjY8EGhazHTzUVQBvH
-oauth_token_secret = gv9vGWluxgMtMY77evxainwolbFhxIiCJsGTd79N2I
+app_key = li8wn8Tb7xBifCnNIgyqUw
+app_secret = vcwq36w4C4VXamlqWBDKM2E8etsOoangDoMhxNDU
+oauth_token = 1969690717-rGw3VkRQ8IyL4OcPWtv5Y2CeBdVn8ndJrjGKraI
+oauth_token_secret = KO7YIFMKWKaYTtz2zEyaSy044ixj5kIbWrDtZZL96ly0H
+
+;-----------------------------------------------------------------------------
+; Race Number
+;
+; This will be automatically updated. It is needed because Twitter deletes
+; duplicate messages, so we need to change a field for each update. If you
+; change this, Tweets might not appear.
+;-----------------------------------------------------------------------------
+[race_number_section]
+race_number = 0
