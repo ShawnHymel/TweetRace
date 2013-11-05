@@ -12,17 +12,17 @@ int main(void)
 
 	dspin_driver * motor_p;
 
-	motor_p = new dspin_driver();
+	motor_p = new dspin_driver(true);
 
-#if 0	
+#if 1
 	for(int i = 0 ; i < 100; i++)
 	{
 		motor_p->test3();
-		sleep(1);
+		sleep(10);
 	}
 #endif	
 	
-#if 1
+#if 0
 	
 	printf("testing1!!\r\n");
 	motor_p->test2(0);

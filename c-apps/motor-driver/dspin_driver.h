@@ -9,7 +9,7 @@
 class dspin_driver
 {
 	public:
-		static const uint32_t NUM_MOTORS = 2;//5;
+		static const uint32_t NUM_MOTORS = 5;
 	
 		dspin_driver(bool verbose = false);
 		~dspin_driver();

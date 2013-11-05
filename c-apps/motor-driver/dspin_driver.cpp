@@ -178,13 +178,25 @@ void dspin_driver::test2(uint32_t chan)
 
 void dspin_driver::test3()
 {
+#if 1
+	uint16_t status[NUM_MOTORS];
+	
+	for(uint16_t i = 0; i < NUM_MOTORS; i++)
+	{
+		status[i] = reg_read(i, REG_STATUS, 2);
+		usleep(1000);
+	}
+
+	printf("Statuses x%04x, x%04x, x%04x, x%04x, x%04x\r\n", status[0], status[1], status[2], status[3], status[4]);
+	
+#else
 	uint16_t status[2];
 	
 	status[0] = reg_read(0, REG_STATUS, 2);
 	status[1] = reg_read(1, REG_STATUS, 2);
 	
 	printf("Statuses x%x, x%x\r\n\r\n", status[0], status[1]);
-	
+#endif	
 }
 
 bool dspin_driver::set_config(uint32_t channel, uint8_t kval, bool full)
