@@ -288,7 +288,7 @@ def main():
         print '============================='
         print 'In debug mode: ', g_debug
         print ''
-        print 'Search terms: ', g_terms
+	print 'Search terms: ', g_terms
 
     # Create a new hoss system (motor driver) and reset
     if g_debug == 0 or g_debug == 1 or g_debug == 5:
@@ -306,6 +306,7 @@ def main():
     tf = twit_feed.TwitFeed(g_twitter_auth, g_terms)
 
     # Tweet that the race has started
+    print 'And they\'re off! Race number ', str(g_race_number), ' has begun!'
     msg = 'Race ' + str(g_race_number) + ': ' + TWEET_START
     for m in g_terms:
         msg = msg + ' ' + m

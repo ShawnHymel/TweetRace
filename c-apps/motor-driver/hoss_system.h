@@ -7,7 +7,7 @@
 
 
 // for interface w/o hardware testing...
-#define DUMMY 1													// here
+//#define DUMMY 1													// here
 
 #ifndef DUMMY
 #include "dspin_driver.h"
