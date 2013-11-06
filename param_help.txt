@@ -1,0 +1,35 @@
+;-----------------------------------------------------------------------------
+; Game Settings
+;
+; terms: hashtags to search for on Twitter feed
+; spd_mult: multiplier for speed
+;           0 = going nowhere
+;           1 = gimp pony
+;           10 = trotting stallion
+;           100 = Ferrari
+;           1000 = first Tweet wins
+; fps: framerate for main display (monitor)
+; horse_tick: how often horses move (in milliseconds)
+; debug: change to set debug output
+;           0 = regular game play (no output to console)
+;           1 = motors/LEDs on, output to console, no motor/display debug
+;           2 = motors/LEDs on, no monitor display, output to console
+;           3 = no motors/LEDs, monitor display, output to console
+;           4 = no motors/LEDs, no monitor, motor/LED debug
+;           5 = no motors/LEDs, no monitor, no motor/LED debug
+;           Note: for debug 2+, need to config and recompile hoss_system.h
+;-----------------------------------------------------------------------------
+
+;-----------------------------------------------------------------------------
+; Twitter Authentication
+;
+; Fill out the keys below from dev.twitter.com
+;-----------------------------------------------------------------------------
+
+;-----------------------------------------------------------------------------
+; Race Number
+;
+; This will be automatically updated. It is needed because Twitter deletes
+; duplicate messages, so we need to change a field for each update. If you
+; change this, Tweets might not appear.
+;-----------------------------------------------------------------------------

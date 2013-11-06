@@ -51,7 +51,7 @@ RACE_NUMBER = 'race_number'
 
 # Tweet settings and messages
 TWEET_LINE_SPACING = -2
-TWEET_START = 'And they\'re off!'
+TWEET_START = 'And they\'re off! The lineup is'
 TWEET_WINNER = 'We have a winner! It\'s'
 TWEET_NO_WINNER = 'The race is over, and no one wins...'
 
@@ -112,14 +112,17 @@ def config_params():
     g_horse_tick = int(config.get(SETTINGS_SECTION, SETTINGS_HORSE_TICK))
     g_debug = int(config.get(SETTINGS_SECTION, SETTINGS_DEBUG))
 
-    # Read race number
+    # Read in the race number
     g_race_number = int(config.get(RACE_NUMBER_SECTION, RACE_NUMBER))
 
-    # Increment race number in param file for next time
-    config.set(RACE_NUMBER_SECTION, RACE_NUMBER, str(g_race_number + 1))
-    param_file = open(PARAM_FILE, "w")
-    config.write(param_file)
-    param_file.close()
+# Update the parameter file with a new race number
+def update_params():
+    global g_race_number
+
+    # Open text file
+    config = ConfigParser.RawConfigParser()
+    try:
+        config.set(RACE_NUMBER_SECTION, RACE_NUMBER,
 
 # Send display strings to alphanumeric LED displays
 def display_terms():
@@ -278,6 +281,7 @@ def main():
     global g_scope
     global g_led_display
     global g_tweet_list
+    global g_race_number
 
     # Read in parameters file and configure game
     config_params()
@@ -291,7 +295,7 @@ def main():
         print 'Search terms: ', g_terms
 
     # Create a new hoss system (motor driver) and reset
-    if g_debug == 0 or g_debug == 1 or g_debug == 5:
+    if g_debug == 0:
         hp = motor_driver.hoss_system(False)
     else:
         hp = motor_driver.hoss_system(True)
@@ -317,10 +321,10 @@ def main():
     # Setup display
     g_game_time = 0;
     pygame.init()
-    if g_debug == 0 or g_debug == 3:
+    if g_debug == 0 or g_debug == 1 or g_debug == 3:
         g_scope = pyscope.pyscope()
     fps_clock = pygame.time.Clock()
-    if g_debug == 0 or g_debug == 3:
+    if g_debug == 0 or g_debug == 1 or g_debug == 3:
         pygame.mouse.set_visible(False)
 
     # Start streamer to search for terms
@@ -362,7 +366,7 @@ def main():
 
         # Update screen
         g_game_time = pygame.time.get_ticks()
-        if g_debug == 0 or g_debug == 3:
+        if g_debug == 0 or g_debug == 1 or g_debug == 3:
             draw_screen()
             pygame.display.update()
         fps_clock.tick(g_fps)
@@ -371,21 +375,20 @@ def main():
     winner = hp.get_winner()
     if winner >= 0 and winner < g_num_horses:
         msg = 'Race ' + str(g_race_number) + ': ' + \
-                            TWEET_WINNER + ' ' + g_terms[winner]
+                            TWEET_WINNER + ' ' + winner
         tf.tweet(msg)
         if g_debug > 0:
-            print '========='
-            print 'Game Over'
-            print '========='
-            print 'The winner is ', g_terms[winner]
+            print 'End game'
+            print 'Winner is ', winner
     else:
         msg = 'Race ' + str(g_race_number) + ': ' + TWEET_NO_WINNER
         tf.tweet(msg)
         if g_debug > 0:
-            print '========='
-            print 'Game Over'
-            print '========='
+            print 'End game'
             print 'No winner. All the horses suck.'
+
+    # Increment race number in parameters file
+    
 
     # Clean up Twitter feed and pygame
     tf.stop()
@@ -393,3 +396,5 @@ def main():
 
 # Run main
 main()
+
+

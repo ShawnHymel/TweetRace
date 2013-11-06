@@ -1,6 +1,6 @@
 import Queue
 import threading
-from twython import TwythonStreamer
+from twython import Twython, TwythonStreamer, TwythonError
 
 # Twitter streamer class tallies tweets based on given hashtags
 class TwitStreamer(TwythonStreamer):
@@ -50,16 +50,21 @@ class TwitFeed:
         self.track_terms = [''.join([x,' ']) for x in search_terms]
         self.score_terms = [x[1:].lower() for x in search_terms]
 
-        # Create thread to filter the stream
+        # Extract authentication tokens
         app_key = twitter_auth['app_key']
         app_secret = twitter_auth['app_secret']
         oauth_token = twitter_auth['oauth_token']
         oauth_token_secret = twitter_auth['oauth_token_secret']
-        auth_args = (app_key, app_secret, oauth_token, oauth_token_secret)
-        self.thread_stream = threading.Thread( \
-                        target=self.__create_twitter_streamer, args=auth_args)
-        self.thread_stream.daemon = True
-        self.thread_stream.start()
+        self.auth_args = (  app_key, 
+                            app_secret, 
+                            oauth_token, 
+                            oauth_token_secret)
+    
+        # Setup Twitter object to send tweets
+        self.twitter = Twython( app_key, 
+                                app_secret, 
+                                oauth_token, 
+                                oauth_token_secret)
 
     # [Private] Setup streamer and filter(s)
     def __create_twitter_streamer(  self, 
@@ -73,6 +78,13 @@ class TwitFeed:
                                     oauth_token,
                                     oauth_token_secret )
         self.stream.statuses.filter(track=self.track_terms)
+
+    # [Public] Start streamer
+    def start_streamer(self):
+        self.thread_stream = threading.Thread( \
+                target=self.__create_twitter_streamer, args=self.auth_args)
+        self.thread_stream.daemon = True
+        self.thread_stream.start()
 
     # [Public] Adds a score to the queue
     def add_score(self, score):
@@ -131,9 +143,17 @@ class TwitFeed:
             else:
                 tweet_list.append(msg)
         return tweet_list
+
+    # [Public] Send tweet
+    def tweet(self, msg):
+        try:
+            self.twitter.update_status(status=msg)
+        except TwythonError as e:
+            print e
         
     # [Public] Stop the streamer and wait for thread to end
     def stop(self):
+        del self.twitter
         self.stream.stop()
         while self.thread_stream.is_alive():
             pass
