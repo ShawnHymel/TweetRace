@@ -273,7 +273,7 @@ def main():
         print 'Search terms: ', g_terms
 
     # Create a new hoss system (motor driver) and reset
-    if g_debug == 0 or g_debug == 1:
+    if g_debug == 0 or g_debug == 1 or g_debug == 5:
         hp = motor_driver.hoss_system(False)
     else:
         hp = motor_driver.hoss_system(True)

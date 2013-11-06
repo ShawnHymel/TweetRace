@@ -15,15 +15,16 @@
 ;           1 = motors/LEDs on, output to console, no motor/display debug
 ;           2 = motors/LEDs on, no monitor display, output to console
 ;           3 = no motors/LEDs, monitor display, output to console
-;           4 = no motors/LEDs, no monitor, output to console only
+;           4 = no motors/LEDs, no monitor, motor/LED debug
+;           5 = no motors/LEDs, no monitor, no motor/LED debug
 ;           Note: for debug 2+, need to config and recompile hoss_system.h
 ;-----------------------------------------------------------------------------
 [game_settings]
-terms = #iphone,#obamacare,#omg,#fml,#blessed
-spd_mult = 100
+terms = #hello,#obamacare,#omg,#fml,#blessed
+spd_mult = 1
 fps = 5
 horse_tick = 2000
-debug = 1
+debug = 5
 
 ;-----------------------------------------------------------------------------
 ; Twitter Authentication
