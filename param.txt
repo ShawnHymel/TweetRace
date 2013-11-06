@@ -7,7 +7,7 @@
 ;           1 = gimp pony
 ;           10 = trotting stallion
 ;           100 = Ferrari
-;           1000 = first Tweet wins
+;           1000 = first Tweet wins (DO NOT USE)
 ; fps: framerate for main display (monitor)
 ; horse_tick: how often horses move (in milliseconds)
 ; debug: change to set debug output

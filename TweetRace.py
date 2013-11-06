@@ -116,6 +116,8 @@ def config_params():
     g_debug = int(config.get(SETTINGS_SECTION, SETTINGS_DEBUG))
 
     # Read race number
+    del config
+    config = ConfigParser.RawConfigParser()
     config.read(RACE_NUMBER_FILE)
     g_race_number = int(config.get(RACE_NUMBER_SECTION, RACE_NUMBER))
 
@@ -124,6 +126,7 @@ def config_params():
     param_file = open(RACE_NUMBER_FILE, "w")
     config.write(param_file)
     param_file.close()
+    del config
 
 # Send display strings to alphanumeric LED displays
 def display_terms():
