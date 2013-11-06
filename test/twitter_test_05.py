@@ -8,7 +8,7 @@ from twython import TwythonStreamer
 
 # Game parameters
 terms = ['#omg', '#iphone'] # Search terms (hashtags only right now)
-game_time = 30                       # Game time (seconds)
+game_time = 60                       # Game time (seconds)
 
 # Twitter authentication
 APP_KEY = 'li8wn8Tb7xBifCnNIgyqUw'

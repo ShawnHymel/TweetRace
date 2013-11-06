@@ -128,7 +128,7 @@ bool hoss_system::is_any_at_far_end()
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
 		// Average 4 reads for debouncingness
-		for(uint32 j = 0; j < 4; j++)
+		for(uint32_t j = 0; j < 4; j++)
 		{
 			val += m_motor_p->get_adc_val(i);
 		}

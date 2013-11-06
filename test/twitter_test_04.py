@@ -4,13 +4,13 @@
 from twython import TwythonStreamer
 
 # Search terms (Note: hashtags only right now!)
-terms = ['#omg', '#hello']
+terms = ['#fml', '#blessed', '#diy', '#guncontrol', '#obamacare']
 
 # Twitter authentication
-APP_KEY = '0SGK64SYL8Y0R4tCbcm6SA'
-APP_SECRET = 'f1RFySmg0RVRVtTGnvu9NvrWm73IT7C8Z1gpcYZAwo' 
-OAUTH_TOKEN = '1969690717-lDn8UEoAIp5h2zITLyPtfGjY8EGhazHTzUVQBvH'
-OAUTH_TOKEN_SECRET = 'gv9vGWluxgMtMY77evxainwolbFhxIiCJsGTd79N2I'
+APP_KEY = 'li8wn8Tb7xBifCnNIgyqUw'
+APP_SECRET = 'vcwq36w4C4VXamlqWBDKM2E8etsOoangDoMhxNDU'
+OAUTH_TOKEN = '1969690717-rGw3VkRQ8IyL4OcPWtv5Y2CeBdVn8ndJrjGKraI'
+OAUTH_TOKEN_SECRET = 'KO7YIFMKWKaYTtz2zEyaSy044ixj5kIbWrDtZZL96ly0H'
 
 # Twitter streamer class
 class MyStreamer(TwythonStreamer):

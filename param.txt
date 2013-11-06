@@ -12,17 +12,17 @@
 ; horse_tick: how often horses move (in milliseconds)
 ; debug: change to set debug output
 ;           0 = regular game play (no output to console)
-;           1 = motors/LEDs on, monitor display, output to console
+;           1 = motors/LEDs on, output to console, no motor/display debug
 ;           2 = motors/LEDs on, no monitor display, output to console
 ;           3 = no motors/LEDs, monitor display, output to console
 ;           4 = no motors/LEDs, no monitor, output to console only
 ;           Note: for debug 2+, need to config and recompile hoss_system.h
 ;-----------------------------------------------------------------------------
 [game_settings]
-terms = #fml,#blessed,#diy,#5s,#obamacare
+terms = #iphone,#obamacare,#omg,#fml,#blessed
 spd_mult = 100
 fps = 5
-horse_tick = 1000
+horse_tick = 2000
 debug = 1
 
 ;-----------------------------------------------------------------------------

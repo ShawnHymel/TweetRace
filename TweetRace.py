@@ -197,14 +197,14 @@ def draw_screen():
     g_scope.screen.blit(text_timer, (255, 135))
 
     # Draw tweets. Remove from the list ones that don't fit anymore.
-    offset = 0
-    for i, m in enumerate(g_tweet_list):
-        if g_debug == 0 or g_debug == 1 or g_debug == 3:
-            num_lines, text = draw_tweet(m, rect_tweets, font_tweets, offset)
-            offset += (num_lines + 1)
-            if text:
-                g_tweet_list = g_tweet_list[:i]
-                break
+    #offset = 0
+    #for i, m in enumerate(g_tweet_list):
+    #    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+    #        num_lines, text = draw_tweet(m, rect_tweets, font_tweets, offset)
+    #        offset += (num_lines + 1)
+    #        if text:
+    #            g_tweet_list = g_tweet_list[:i]
+    #            break
 
 # Draw a tweet on a surface and wrap text.
 # Return number of lines used and any text that did not fit
@@ -273,7 +273,7 @@ def main():
         print 'Search terms: ', g_terms
 
     # Create a new hoss system (motor driver) and reset
-    if g_debug == 0:
+    if g_debug == 0 or g_debug == 1:
         hp = motor_driver.hoss_system(False)
     else:
         hp = motor_driver.hoss_system(True)
@@ -293,10 +293,10 @@ def main():
     # Setup display
     g_game_time = 0;
     pygame.init()
-    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+    if g_debug == 0 or g_debug == 3:
         g_scope = pyscope.pyscope()
     fps_clock = pygame.time.Clock()
-    if g_debug == 0 or g_debug == 1 or g_debug == 3:
+    if g_debug == 0 or g_debug == 3:
         pygame.mouse.set_visible(False)
 
     # Main game loop
@@ -335,7 +335,7 @@ def main():
 
         # Update screen
         g_game_time = pygame.time.get_ticks()
-        if g_debug == 0 or g_debug == 1 or g_debug == 3:
+        if g_debug == 0 or g_debug == 3:
             draw_screen()
             pygame.display.update()
         fps_clock.tick(g_fps)
@@ -345,7 +345,7 @@ def main():
     if winner >= 0 and winner < g_num_horses:
         if g_debug > 0:
             print 'End game'
-            print 'Winner is ', winner
+            print 'Winner is ', g_terms[winner]
     else:
         if g_debug > 0:
             print 'End game'
