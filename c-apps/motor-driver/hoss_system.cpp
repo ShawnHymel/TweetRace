@@ -122,12 +122,17 @@ bool hoss_system::is_any_at_far_end()
 	return false;
 #else
 
-	uint8_t val;
+	uint8_t val = 0;
 
 	// TBD - again, large parallel operation?
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		val = m_motor_p->get_adc_val(i);
+		// Average 4 reads for debouncingness
+		for(uint32 j = 0; j < 4; j++)
+		{
+			val += m_motor_p->get_adc_val(i);
+		}
+		val /= 4;
 
 		if(m_verbose)
 		{
