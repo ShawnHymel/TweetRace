@@ -67,6 +67,7 @@ except AttributeError:
     _newclass = 0
 
 
+DUMMY = _motor_driver.DUMMY
 eUNKNOWN = _motor_driver.eUNKNOWN
 eAT_HOME = _motor_driver.eAT_HOME
 eRUNNING = _motor_driver.eRUNNING

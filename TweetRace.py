@@ -36,8 +36,9 @@ import twit_feed
 
 # Configuration files
 PARAM_FILE = 'param.txt'
+RACE_NUMBER_FILE = 'race_number.txt'
 
-# Game paramters from the config file
+# Game parameters from the config file
 SETTINGS_SECTION = 'game_settings'
 SETTINGS_TERMS = 'terms'
 SETTINGS_SPD_MULT = 'spd_mult'
@@ -46,6 +47,8 @@ SETTINGS_HORSE_TICK = 'horse_tick'
 SETTINGS_DEBUG = 'debug'
 TWITTER_SECTION = 'twitter_auth'
 TWITTER_ARGS = ['app_key', 'app_secret', 'oauth_token', 'oauth_token_secret']
+
+# Parameters from the race number file
 RACE_NUMBER_SECTION = 'race_number_section'
 RACE_NUMBER = 'race_number'
 
@@ -113,11 +116,12 @@ def config_params():
     g_debug = int(config.get(SETTINGS_SECTION, SETTINGS_DEBUG))
 
     # Read race number
+    config.read(RACE_NUMBER_FILE)
     g_race_number = int(config.get(RACE_NUMBER_SECTION, RACE_NUMBER))
 
     # Increment race number in param file for next time
     config.set(RACE_NUMBER_SECTION, RACE_NUMBER, str(g_race_number + 1))
-    param_file = open(PARAM_FILE, "w")
+    param_file = open(RACE_NUMBER_FILE, "w")
     config.write(param_file)
     param_file.close()
 
@@ -306,7 +310,7 @@ def main():
     tf = twit_feed.TwitFeed(g_twitter_auth, g_terms)
 
     # Tweet that the race has started
-    print 'And they\'re off! Race number ', str(g_race_number), ' has begun!'
+    print 'And they\'re off! Race number', str(g_race_number), 'has begun!'
     msg = 'Race ' + str(g_race_number) + ': ' + TWEET_START
     for m in g_terms:
         msg = msg + ' ' + m

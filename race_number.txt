@@ -1,0 +1,16 @@
+[game_settings]
+terms = #diy,#fml,#blessed,#omg,#hello
+spd_mult = 100
+fps = 5
+horse_tick = 2000
+debug = 1
+
+[twitter_auth]
+app_key = li8wn8Tb7xBifCnNIgyqUw
+app_secret = vcwq36w4C4VXamlqWBDKM2E8etsOoangDoMhxNDU
+oauth_token = 1969690717-rGw3VkRQ8IyL4OcPWtv5Y2CeBdVn8ndJrjGKraI
+oauth_token_secret = KO7YIFMKWKaYTtz2zEyaSy044ixj5kIbWrDtZZL96ly0H
+
+[race_number_section]
+race_number = 9
+
