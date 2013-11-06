@@ -3067,16 +3067,16 @@ namespace swig {
 
 
 SWIGINTERNINLINE PyObject*
-  SWIG_From_int  (int value)
+  SWIG_From_unsigned_SS_int  (unsigned int value)
 {
-  return PyInt_FromLong((long) value);
+  return PyInt_FromSize_t((size_t) value);
 }
 
 
 SWIGINTERNINLINE PyObject*
-  SWIG_From_unsigned_SS_int  (unsigned int value)
+  SWIG_From_int  (int value)
 {
-  return PyInt_FromSize_t((size_t) value);
+  return PyInt_FromLong((long) value);
 }
 
 
@@ -4305,7 +4305,6 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
-  SWIG_Python_SetConstant(d, "DUMMY",SWIG_From_int(static_cast< int >(1)));
   PyDict_SetItemString(md,(char*)"cvar", SWIG_globals());
   SWIG_addvarlink(SWIG_globals(),(char*)"NUM_HOSSES",Swig_var_NUM_HOSSES_get, Swig_var_NUM_HOSSES_set);
   SWIG_Python_SetConstant(d, "eUNKNOWN",SWIG_From_int(static_cast< int >(eUNKNOWN)));
