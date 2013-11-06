@@ -10,7 +10,7 @@ display_driver * display_driver::instance_p = NULL;
 
 display_driver::display_driver()
 {
-	mover_p = new spi_mover("/dev/spidev0.0");
+	mover_p = new spi_mover("/dev/spidev0.1");
 
 	for(int i = 0; i < NUM_STRINGS; i++)
 	{

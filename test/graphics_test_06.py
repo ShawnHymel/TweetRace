@@ -6,7 +6,7 @@ import sys
 from pyscope import pyscope
 
 # Constants
-FPS = 30                    # Frames per second
+FPS = 1                    # Frames per second
 GAME_TIME = 120000          # Game time (milliseconds)
 
 # Common colors

@@ -76,7 +76,7 @@ dspin_driver::dspin_driver(bool verbose)
 {
 	m_verbose = verbose;
 
-	mover_p = new spi_mover("/dev/spidev0.1");
+	mover_p = new spi_mover("/dev/spidev0.0");
 	
 	mover_p->set_mode(true, true);
 }

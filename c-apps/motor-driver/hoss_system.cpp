@@ -82,7 +82,7 @@ void hoss_system::find_home()
 	// now poll status...
 	for(uint32_t i = 0; i < NUM_HOSSES; i++)
 	{
-		while(!is_switch_closed(i))
+		while(!m_motor_p->is_switch_closed(i))
 		{
 			if(m_verbose)
 			{

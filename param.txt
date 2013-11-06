@@ -19,11 +19,11 @@
 ;           Note: for debug 2+, need to config and recompile hoss_system.h
 ;-----------------------------------------------------------------------------
 [game_settings]
-terms = #omg,#hello,#diy,#robot,#fun
-spd_mult = 1
-fps = 20
+terms = #fml,#blessed,#diy,#5s,#obamacare
+spd_mult = 100
+fps = 5
 horse_tick = 1000
-debug = 3
+debug = 1
 
 ;-----------------------------------------------------------------------------
 ; Twitter Authentication

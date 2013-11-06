@@ -15,10 +15,10 @@ int main(void)
 	motor_p = new dspin_driver(true);
 
 #if 1
-	for(int i = 0 ; i < 100; i++)
+	for(int i = 0 ; i < 10000; i++)
 	{
 		motor_p->test3();
-		sleep(10);
+		sleep(1);
 	}
 #endif	
 	
