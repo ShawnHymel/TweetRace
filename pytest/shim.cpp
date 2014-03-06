@@ -1,43 +1,39 @@
-#include <unistd.h>
+#include <Python.h>
 
-#include "spi_mover.h"
-
-#include "shim.h"
-
-#include <stdio.h>
-
-static spi_mover * instance_p = NULL;
-
-bool shim_init(const char * path)
+/******************************************************************************
+ * Your methods
+ *****************************************************************************/
+static PyObject* test_method(PyObject* self, PyObject *args)
 {
-    if(instance_p != NULL)
-    {
-        return false;
+    int a;
+    int b;
+
+    /* Parse arguments */
+    if (!PyArg_ParseTuple(args, "ii", &a, &b)) {
+        return NULL;
     }
 
-    instance_p = new spi_mover(path);
-
-
-    return true;
-
+    /* Return value */
+    return Py_BuildValue("i", a * b);
 }
 
-bool shim_transfer(int num, uint8_t* out, uint8_t* in)
+/******************************************************************************
+ * Method mapping table
+ *****************************************************************************/
+static char shim_docs[] =
+    "test_method( ): Any message you want to put here!!\n";
+
+static PyMethodDef helloworld_funcs[] = {
+    {"test_method", (PyCFunction)test_method, 
+     METH_VARARGS, shim_docs},
+    {NULL}
+};
+
+/******************************************************************************
+ * Initialization function that's called when Python loads the extension
+ *****************************************************************************/
+PyMODINIT_FUNC initshim(void)
 {
-	if(instance_p == NULL)
-	{
-		return false;
-	}
-
-	return(instance_p->transfer(num,  out, in));
-}
-
-
-void shim_uninit()
-{
-	if(instance_p != NULL)
-	{
-		delete instance_p;
-		instance_p = NULL;
-	}
+    Py_InitModule3("shim", helloworld_funcs,
+                   "Extension module example!");
 }
