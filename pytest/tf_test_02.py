@@ -35,35 +35,6 @@ class TwitStreamer(TwythonStreamer):
     def stop(self):
         self.disconnect()
 
-# Twitter streamer class to collect bet entries for the race
-class BetStreamer(TwythonStreamer):
-
-        # [Constructor] Inherits a Twython streamer. Pass in queues.
-    def __init__(self, parent, app_key, app_secret, oauth_token, 
-                    oauth_token_secret, timeout=300, retry_count=None, 
-                    retry_in=10, client_args=None, handlers=None, 
-                    chunk_size=1):
-        TwythonStreamer.__init__(self, app_key, app_secret, oauth_token, 
-                    oauth_token_secret, timeout=300, retry_count=None, 
-                    retry_in=10, client_args=None, handlers=None, 
-                    chunk_size=1)
-        self.parent = parent
-
-    # Callback from streamer when tweet matches the search term
-    def on_success(self, data):
-        if 'text' in data:
-            for hashtag in data['entities']['hashtags']:
-                self.parent.add_entry(hashtag['text'].lower())
-                break # only add first term
-
-    # Callback from streamer if error occurs
-    def on_error(self, status_code, data):
-        print status_code, data
-        
-    # Called from main thread to stop the streamer
-    def stop(self):
-        self.disconnect()
-
 # TwitFeed class sets up the streamer and provides access to tweets and score
 class TwitFeed:
 
@@ -104,19 +75,6 @@ class TwitFeed:
                                             oauth_token_secret )
         self.track_stream.statuses.filter(track=self.track_terms)
 
-    # [Private] Setup bet streamer
-    def __create_bet_streamer(  self, 
-                                app_key, 
-                                app_secret, 
-                                oauth_token, 
-                                oauth_token_secret ):
-        self.bet_stream = BetStreamer(  self, 
-                                    app_key, 
-                                    app_secret,
-                                    oauth_token,
-                                    oauth_token_secret )
-        self.bet_stream.statuses.filter(track=self.bet_term)
-
     # [Public] Start streamer
     def start_track_streamer(self, search_terms):
 
@@ -130,18 +88,6 @@ class TwitFeed:
                 target=self.__create_twitter_streamer, args=self.auth_args)
         self.thread_stream.daemon = True
         self.thread_stream.start()
-
-    # [Public] Start bet streamer
-    def start_bet_streamer(self, search_term):
-
-        # Setup term needed to make an entry
-        self.bet_term = search_term
-
-        # Start streamer inside thread
-        self.thread_betting = threading.Thread( \
-                target=self.__create_bet_streamer, args=self.auth_args)
-        self.thread_betting.daemon = True
-        self.thread_betting.start()
 
     # [Public] Adds a bet entry to the queue
     def add_entry(self, entry):
@@ -230,13 +176,8 @@ class TwitFeed:
             print e
         
     # [Public] Stop the streamer and wait for thread to end
-    def stop_tracking(self, timeout=None):
+    def stop_tracking(self):
         self.track_stream.stop()
-        self.thread_stream.join(timeout)
+        while self.thread_stream.is_alive():
+            pass
         del self.thread_stream
-
-    # [Public] Stop betting and wait for thread to end
-    def stop_betting(self, timeout=None):
-        self.bet_stream.stop()
-        self.thread_betting.join(timeout)        
-        del self.thread_betting

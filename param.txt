@@ -1,7 +1,10 @@
 ;-----------------------------------------------------------------------------
 ; Game Settings
 ;
-; terms: hashtags to search for on Twitter feed
+; Set screen resolution to 540x960. Set display_rotate=1 (90 deg)
+;
+; terms: hashtags to search for on Twitter feed (if in regular mode)
+; max_terms: maximum number of terms (if in forever mode)
 ; spd_mult: multiplier for speed
 ;           0 = going nowhere
 ;           1 = gimp pony
@@ -20,7 +23,9 @@
 ;           Note: for debug 2+, need to config and recompile hoss_system.h
 ;-----------------------------------------------------------------------------
 [game_settings]
+handle = @Gr8AmTweetRace
 terms = #diy,#fml,#blessed,#omg,#hello
+max_terms = 2
 spd_mult = 100
 fps = 5
 horse_tick = 2000

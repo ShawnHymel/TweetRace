@@ -40,7 +40,9 @@ RACE_NUMBER_FILE = 'race_number.txt'
 
 # Game parameters from the config file
 SETTINGS_SECTION = 'game_settings'
+SETTINGS_HANDLE = 'handle'
 SETTINGS_TERMS = 'terms'
+SETTINGS_MAX_TERMS = 'max_terms'
 SETTINGS_SPD_MULT = 'spd_mult'
 SETTINGS_FPS = 'fps'
 SETTINGS_HORSE_TICK = 'horse_tick'
@@ -70,14 +72,15 @@ RED   = 255,0,0
 #-----------------------------------------------------------------------------
 
 g_debug = None
-g_terms = None
+g_handle = None
+g_terms = []
+g_max_terms = None
 g_spd_mult = 0
 g_game_time = None
 g_horse_tick = None
 g_num_horses = 0
 g_fps = None
 g_twitter_auth = {}
-g_mainloop = None
 g_scope = None
 g_led_display = None
 g_tweet_list = []
@@ -90,14 +93,15 @@ g_race_number = None
 # Automatically read the parameters text file and configure the game settings.
 def config_params():   
     global g_fps
+    global g_handle
     global g_terms
+    global g_max_terms
     global g_spd_mult
     global g_game_time
     global g_horse_tick
     global g_num_horses
     global g_debug
     global g_twitter_auth
-    global g_race_number
 
     # Open text file
     config = ConfigParser.RawConfigParser()
@@ -108,15 +112,20 @@ def config_params():
         g_twitter_auth[s] = config.get(TWITTER_SECTION, s)
 
     # Read in game settings
-    g_terms = config.get(SETTINGS_SECTION, SETTINGS_TERMS).split(',')
+    g_handle = config.get(SETTINGS_SECTION, SETTINGS_HANDLE)
+    g_max_terms = int(config.get(SETTINGS_SECTION, SETTINGS_MAX_TERMS))
     g_num_horses = len(g_terms)
     g_spd_mult = int(config.get(SETTINGS_SECTION, SETTINGS_SPD_MULT))
     g_fps = int(config.get(SETTINGS_SECTION, SETTINGS_FPS))
     g_horse_tick = int(config.get(SETTINGS_SECTION, SETTINGS_HORSE_TICK))
     g_debug = int(config.get(SETTINGS_SECTION, SETTINGS_DEBUG))
 
+# Read race number from file, increment it, write it back
+def update_race_number():
+
+    global g_race_number
+
     # Read race number
-    del config
     config = ConfigParser.RawConfigParser()
     config.read(RACE_NUMBER_FILE)
     g_race_number = int(config.get(RACE_NUMBER_SECTION, RACE_NUMBER))
@@ -158,6 +167,74 @@ def display_terms():
             if not g_led_display.update_string(str_index, out_chars, len(s)):
                 print 'Update string failed'
     
+# Handle graphics on the screen
+def draw_starting_screen():
+
+    global g_terms
+    global g_max_terms
+    global g_scope
+
+    # Create fonts
+    font_mode = pygame.font.Font(None, 68)
+    font_title_1 = pygame.font.Font(None, 68)
+    font_title_2 = pygame.font.Font(None, 68)
+    font_instr_1 = pygame.font.Font(None, 36)
+    font_instr_2 = pygame.font.Font(None, 36)
+    font_ent_title = pygame.font.Font(None, 36)
+    font_ent = pygame.font.Font(None, 36)
+
+    # Create background
+    rect_bg = pygame.draw.rect(g_scope.screen, BLACK, \
+                                                    (0, 0, 540, 960), 0)
+    rect_title = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 20, 500, 100), 0)
+    rect_game_mode = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 140, 500, 60), 0)
+    rect_instructions = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 220, 500, 100), 0)
+    rect_tweets = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 340, 500, 300), 0)
+    
+    # Draw title
+    title1 = "The Great American"
+    title2 = "Tweet Race"
+    text_title_1 = font_title_1.render(title1,1,BLACK)
+    text_title_2 = font_title_2.render(title2,1,BLACK)
+    g_scope.screen.blit(text_title_1, (40, 25))
+    g_scope.screen.blit(text_title_2, (130, 70))
+
+    # Draw game mode
+    mode_str = font_mode.render('Starting Gate',1,BLACK)
+    g_scope.screen.blit(mode_str, (115, 140))
+
+    # Draw instructions
+    instr_str_1 = 'Send a tweet to @Gr8AmTweetRace'
+    instr_str_2 = 'with a #term to enter!'
+    instr_1 = font_instr_1.render(instr_str_1,1,BLACK)
+    instr_2 = font_instr_2.render(instr_str_2,1,BLACK)
+    g_scope.screen.blit(instr_1, (40, 240))
+    g_scope.screen.blit(instr_2, (40, 270))
+
+    # Draw entrants
+    ent_title = font_ent_title.render('Contestants',1,BLACK)
+    g_scope.screen.blit(ent_title, (40, 360))
+    ent_y = 390
+    for i in range(0, g_max_terms):
+        ent_str = ''.join([str(i + 1), ': '])
+        if i < len(g_terms):
+            ent_str = ''.join([ent_str, g_terms[i]])
+        ent_disp = font_ent.render(ent_str,1,BLACK)
+        g_scope.screen.blit(ent_disp, (40, 390 + (i * 30)))
+
+# Test if a term is already in the term list
+def is_in_terms(entry):
+    
+    global g_terms
+
+    for term in g_terms:
+        if ''.join(['#', entry]) == term:
+            return True
+    return False
 
 # Handle graphics on the screen
 def draw_screen():
@@ -274,14 +351,14 @@ def draw_tweet(text, rect_tweets, font_tweets, offset):
 
 def main():
     global g_fps
-    global g_terms
+    global handle
+    global g_max_terms
     global g_spd_mult
     global g_game_time
     global g_horse_tick
     global g_num_horses
     global g_debug
     global g_twitter_auth
-    global g_mainloop
     global g_scope
     global g_led_display
     global g_tweet_list
@@ -294,8 +371,6 @@ def main():
         print 'The Great American Tweet Race'
         print '============================='
         print 'In debug mode: ', g_debug
-        print ''
-	print 'Search terms: ', g_terms
 
     # Create a new hoss system (motor driver) and reset
     if g_debug == 0 or g_debug == 1 or g_debug == 5:
@@ -306,21 +381,8 @@ def main():
         hp.find_home()
     time.sleep(1)
 
-    # Show terms on alphanumeric displays
-    display_terms()
-
     # Create a TwitFeed object
     tf = twit_feed.TwitFeed(g_twitter_auth)
-
-    # Tweet that the race has started
-    print 'And they\'re off! Race number', str(g_race_number), 'has begun!'
-    msg = 'Race ' + str(g_race_number) + ': ' + TWEET_START
-    for m in g_terms:
-        msg = msg + ' ' + m
-    tf.tweet(msg)
-
-    # Setup timer to move horses periodically
-    pygame.time.set_timer(pygame.USEREVENT + 1, g_horse_tick)
 
     # Setup display
     g_game_time = 0;
@@ -331,14 +393,96 @@ def main():
     if g_debug == 0 or g_debug == 3:
         pygame.mouse.set_visible(False)
 
+    # Setup timer to move horses periodically
+    pygame.time.set_timer(pygame.USEREVENT + 1, g_horse_tick)
+
+    #--------------
+    # Betting Stage
+    
+    # Start streamer to search for betting terms
+    if g_debug > 0:
+        print ''
+        print '-------------'
+        print 'Betting Stage'
+        print '-------------'
+        print ''
+        print 'Tweet entries to: ', g_handle
+        print 'Max entries: ', g_max_terms
+    tf.start_bet_streamer(g_handle)
+
+    # Start fps clock
+    fps_clock = pygame.time.Clock()
+
+    # Main loop for betting stage
+    bet_loop = True
+    while bet_loop:
+
+        # Handle game events
+        for event in pygame.event.get():
+
+            # End game if quit event raises
+            if event.type == pygame.QUIT:
+                bet_loop = False
+
+            # End game if 'q' or 'esc' key pressed
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                    bet_loop = False
+
+        # Get entries and print them
+        entries = tf.get_entries()
+        for entry in entries:
+            print entry
+            if is_in_terms(entry) == False:
+                g_terms.append(''.join(['#', entry]))
+                print len(g_terms)
+                if len(g_terms) >= g_max_terms:
+                    bet_loop = False
+
+        # Update screen
+        if g_debug == 0 or g_debug == 3:
+            draw_starting_screen()
+            pygame.display.update()
+        fps_clock.tick(g_fps)
+
+    # Clean up Twitter feed and pygame
+    tf.stop_betting(2)
+
+    #-----------
+    # Race Stage
+    
+    # Show terms on alphanumeric displays
+    display_terms()
+
+    # Update race number
+    update_race_number()
+
+    # Set number of horses
+    g_num_horses = len(g_terms)
+
+    # Tweet that the race has started
+    if g_debug > 0:
+        print ''
+        print '-----'
+        print 'Race!'
+        print '-----'
+        print ''
+        print 'And they\'re off! Race number', str(g_race_number), 'has begun!'
+    msg = 'Race ' + str(g_race_number) + ': ' + TWEET_START
+    for m in g_terms:
+        msg = msg + ' ' + m
+    tf.tweet(msg)
+
     # Start streamer to search for terms
     tf.start_track_streamer(g_terms)
 
     # Main game loop
-    g_mainloop = True
+    race_loop = True
     if g_debug > 0:
         print 'Start game'
-    while g_mainloop:
+        print 'Contestants: ', g_terms
+        print ''
+    while race_loop:
 
         # Prepend global list with tweets
         tweets = tf.get_tweets()
@@ -352,12 +496,12 @@ def main():
 
             # End game if quit event raises
             if event.type == pygame.QUIT:
-                g_mainloop = False
+                race_loop = False
 
             # End game if 'q' or 'esc' key pressed
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
-                    g_mainloop = False
+                    race_loop = False
 
             # Every timer interrupt, tally Tweets and move horses
             elif event.type == pygame.USEREVENT+1:
@@ -366,7 +510,7 @@ def main():
                     hp.set_race_value(i, score_card[i] * g_spd_mult)
                 hp.race()
                 if hp.is_any_at_far_end():
-                    g_mainloop = False
+                    race_loop = False
 
         # Update screen
         g_game_time = pygame.time.get_ticks()
@@ -380,25 +524,24 @@ def main():
     if winner >= 0 and winner < g_num_horses:
         msg = 'Race ' + str(g_race_number) + ': ' + \
                             TWEET_WINNER + ' ' + g_terms[winner]
-        #tf.tweet(msg)
+        tf.tweet(msg)
         if g_debug > 0:
-            print '========='
-            print 'Game Over'
-            print '========='
+            print '-------'
+            print 'Finish!'
+            print '-------'
             print 'The winner is ', g_terms[winner]
     else:
         msg = 'Race ' + str(g_race_number) + ': ' + TWEET_NO_WINNER
-        #tf.tweet(msg)
+        tf.tweet(msg)
         if g_debug > 0:
-            print '========='
-            print 'Game Over'
-            print '========='
+            print '-------'
+            print 'Finish!'
+            print '-------'
             print 'No winner. All the horses suck.'
+    print ''
 
     # Clean up Twitter feed and pygame
-    print str(pygame.time.get_ticks())
-    tf.stop_tracking()
-    print str(pygame.time.get_ticks())
+    tf.stop_tracking(2)
     pygame.quit()
 
 # Run main
