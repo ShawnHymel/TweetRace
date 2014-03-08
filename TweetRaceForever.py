@@ -445,7 +445,7 @@ def main():
             pygame.display.update()
         fps_clock.tick(g_fps)
 
-    # Clean up Twitter feed and pygame
+    # Clean up Twitter feed
     tf.stop_betting(2)
 
     #-----------
@@ -519,6 +519,12 @@ def main():
             pygame.display.update()
         fps_clock.tick(g_fps)
 
+    # Stop tracking thread
+    tf.stop_tracking(2)
+
+    #-------------
+    # Finish Stage
+
     # Game over. Declare a winner.
     winner = hp.get_winner()
     if winner >= 0 and winner < g_num_horses:
@@ -541,7 +547,6 @@ def main():
     print ''
 
     # Clean up Twitter feed and pygame
-    tf.stop_tracking(2)
     pygame.quit()
 
 # Run main
