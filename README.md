@@ -47,3 +47,9 @@ How To Run
 ```
 sudo python TweetRace.py
 ```
+
+OR to run in Forever Mode:
+
+```
+sudo python TweetRaceForever.py
+```
