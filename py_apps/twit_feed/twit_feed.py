@@ -205,6 +205,11 @@ class TwitFeed:
                 tweet_list.append(msg)
         return tweet_list
 
+    # [Public] Flush any remaining tweets in the queue
+    def flush_tweets(self):
+        while not self.tweet_queue.empty():
+            self.tweet_queue.get()
+
     # [Public] Get entries to the race
     def get_entries(self):
 

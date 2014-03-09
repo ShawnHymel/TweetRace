@@ -57,9 +57,12 @@ RACE_NUMBER = 'race_number'
 
 # Tweet settings and messages
 TWEET_LINE_SPACING = -2
+TWEET_BETS_1 = 'Taking all bets! Send a tweet to '
+TWEET_BETS_2 = ' with a #term to enter!'
 TWEET_START = 'And they\'re off!'
 TWEET_WINNER = 'We have a winner! It\'s'
 TWEET_NO_WINNER = 'The race is over, and no one wins...'
+TWEET_QUIT = 'Sorry folks, it looks like the race is shutting down for now.'
 
 # Common colors
 WHITE = 255,255,255
@@ -460,7 +463,9 @@ def draw_tweet(text, rect_tweets, font_tweets, offset):
 
 def main():
     global g_fps
-    global handle
+    global g_terms
+    global g_handle
+    global g_race_number
     global g_max_terms
     global g_spd_mult
     global g_game_time
@@ -482,13 +487,11 @@ def main():
         print '============================='
         print 'In debug mode: ', g_debug
 
-    # Create a new hoss system (motor driver) and reset
+    # Create a new hoss system (motor driver)
     if g_debug == 0 or g_debug == 1 or g_debug == 5:
         hp = motor_driver.hoss_system(False)
     else:
         hp = motor_driver.hoss_system(True)
-    if g_debug < 3:
-        hp.find_home()
     time.sleep(1)
 
     # Create a TwitFeed object
@@ -506,191 +509,235 @@ def main():
     # Setup timer to move horses periodically
     pygame.time.set_timer(pygame.USEREVENT + 1, g_horse_tick)
 
-    #--------------
-    # Betting Stage
-    
-    # Start streamer to search for betting terms
-    if g_debug > 0:
-        print ''
-        print '-------------'
-        print 'Betting Stage'
-        print '-------------'
-        print ''
-        print 'Tweet entries to: ', g_handle
-        print 'Max entries: ', g_max_terms
-    tf.start_bet_streamer(g_handle)
+    #---------------
+    # Main Game Loop
+    break_loop = False
+    while True:
 
-    # Start fps clock
-    fps_clock = pygame.time.Clock()
+        #--------------
+        # Betting Stage
 
-    # Main loop for betting stage
-    bet_loop = True
-    while bet_loop:
+        # Clear out previous terms
+        g_terms = []
+        g_tweet_list = []
+        tweets = []
+        tf.flush_tweets()
+        
+        # Move horses back to starting gate
+        if g_debug < 3:
+            hp.find_home()
 
-        # Handle game events
-        for event in pygame.event.get():
+        # Update race number
+        update_race_number()
+        
+        # Start streamer to search for betting terms
+        if g_debug > 0:
+            print ''
+            print '-------------'
+            print 'Betting Stage'
+            print '-------------'
+            print 'Tweet entries to: ', g_handle
+            print 'Max entries: ', g_max_terms
 
-            # End game if quit event raises
-            if event.type == pygame.QUIT:
-                bet_loop = False
+        # Tweet that we are taking bets
+        msg = 'Race ' + str(g_race_number) + ': ' + TWEET_BETS_1 + \
+                                                    g_handle + TWEET_BETS_2
+        tf.tweet(msg)
 
-            # End game if 'q' or 'esc' key pressed
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+        # Start listening for incoming tweets/bets
+        tf.start_bet_streamer(g_handle)
+
+        # Start fps clock
+        fps_clock = pygame.time.Clock()
+
+        # Main loop for betting stage
+        bet_loop = True
+        while bet_loop:
+
+            # Handle game events
+            for event in pygame.event.get():
+
+                # End game if quit event raises
+                if event.type == pygame.QUIT:
+                    break_loop = True
                     bet_loop = False
 
-        # Get entries and print them
-        entries = tf.get_entries()
-        for entry in entries:
-            print entry
-            if is_in_terms(entry) == False:
-                g_terms.append(''.join(['#', entry]))
-                print len(g_terms)
-                if len(g_terms) >= g_max_terms:
-                    bet_loop = False
+                # End game if 'q' or 'esc' key pressed
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                        break_loop = True
+                        bet_loop = False
 
-        # Update screen
-        if g_debug == 0 or g_debug == 3:
-            draw_starting_screen()
-            pygame.display.update()
-        fps_clock.tick(g_fps)
+            # Get entries and print them
+            entries = tf.get_entries()
+            for entry in entries:
+                print entry
+                if is_in_terms(entry) == False:
+                    g_terms.append(''.join(['#', entry]))
+                    print len(g_terms)
+                    if len(g_terms) >= g_max_terms:
+                        bet_loop = False
 
-    # Clean up Twitter feed
-    tf.stop_betting(2)
+            # Update screen
+            if g_debug == 0 or g_debug == 3:
+                draw_starting_screen()
+                pygame.display.update()
+            fps_clock.tick(g_fps)
 
-    #-----------
-    # Race Stage
-    
-    # Show terms on alphanumeric displays
-    display_terms()
+        # Clean up Twitter feed
+        tf.stop_betting(2)
 
-    # Update race number
-    update_race_number()
-
-    # Set number of horses
-    g_num_horses = len(g_terms)
-
-    # Tweet that the race has started
-    if g_debug > 0:
-        print ''
-        print '-----'
-        print 'Race!'
-        print '-----'
-        print ''
-        print 'And they\'re off! Race number', str(g_race_number), 'has begun!'
-    msg = 'Race ' + str(g_race_number) + ': ' + TWEET_START
-    for m in g_terms:
-        msg = msg + ' ' + m
-    tf.tweet(msg)
-
-    # Start streamer to search for terms
-    tf.start_track_streamer(g_terms)
-
-    # Main game loop
-    race_loop = True
-    if g_debug > 0:
-        print 'Start game'
-        print 'Contestants: ', g_terms
-        print ''
-    game_time_zero = pygame.time.get_ticks()
-    while race_loop:
-
-        # Prepend global list with tweets
-        tweets = tf.get_tweets()
-        for m in reversed(tweets):
-            g_tweet_list.insert(0, m)
-            if g_debug > 0:
-                print m, '\n'
-
-        # Handle game events
-        for event in pygame.event.get():
-
-            # End game if quit event raises
-            if event.type == pygame.QUIT:
-                race_loop = False
-
-            # End game if 'q' or 'esc' key pressed
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
-                    race_loop = False
-
-            # Every timer interrupt, tally Tweets and move horses
-            elif event.type == pygame.USEREVENT+1:
-                score_card = tf.tally_tweets()
-                for i in range(0, g_num_horses):
-                    hp.set_race_value(i, score_card[i] * g_spd_mult)
-                hp.race()
-                if hp.is_any_at_far_end():
-                    race_loop = False
-
-        # Update screen
-        g_game_time = pygame.time.get_ticks() - game_time_zero
-        if g_debug == 0 or g_debug == 3:
-            draw_screen()
-            pygame.display.update()
-        fps_clock.tick(g_fps)
-
-    # Stop tracking thread
-    tf.stop_tracking(2)
-
-    #-------------
-    # Finish Stage
-
-    # Game over. Declare a winner.
-    winner_num = hp.get_winner()
-    winner = None
-    if winner_num >= 0 and winner_num < g_num_horses:
-        winner = g_terms[winner_num]
-        msg = 'Race ' + str(g_race_number) + ': ' + \
-                            TWEET_WINNER + ' ' + winner
-        tf.tweet(msg)
-        if g_debug > 0:
-            print '-------'
-            print 'Finish!'
-            print '-------'
-            print 'The winner is ', winner
-    else:
-        msg = 'Race ' + str(g_race_number) + ': ' + TWEET_NO_WINNER
-        tf.tweet(msg)
-        if g_debug > 0:
-            print '-------'
-            print 'Finish!'
-            print '-------'
-            print 'No winner. All the horses suck.'
-    print ''
-
-    # Display winner and wait for next game
-    finish_loop = True
-    game_time_zero = pygame.time.get_ticks() + (g_reset_time * 1000)
-    while finish_loop:
-
-        # Handle game events
-        for event in pygame.event.get():
-
-            # End game if quit event raises
-            if event.type == pygame.QUIT:
-                finish_loop = False
-
-            # End game if 'q' or 'esc' key pressed
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
-                    finish_loop = False
-
-        # Update countdown timer
-        g_game_time = game_time_zero - pygame.time.get_ticks()
-        if g_game_time <= 0:
-            finish_loop = False
+        # Check if we need to end the game
+        if break_loop:
             break
 
-        # Update screen
-        if g_debug == 0 or g_debug == 3:
-            draw_finish_screen(winner)
-            pygame.display.update()
-        fps_clock.tick(g_fps)
+        #-----------
+        # Race Stage
+        
+        # Show terms on alphanumeric displays
+        display_terms()
+
+        # Set number of horses
+        g_num_horses = len(g_terms)
+
+        # Tweet that the race has started
+        if g_debug > 0:
+            print ''
+            print '-----'
+            print 'Race!'
+            print '-----'
+            print 'And they\'re off! Race number', str(g_race_number), \
+                                                                    'has begun!'
+        msg = 'Race ' + str(g_race_number) + ': ' + TWEET_START
+        for m in g_terms:
+            msg = msg + ' ' + m
+        tf.tweet(msg)
+
+        # Start streamer to search for terms
+        tf.start_track_streamer(g_terms)
+
+        # Main game loop
+        race_loop = True
+        if g_debug > 0:
+            print 'Start game'
+            print 'Contestants: ', g_terms
+            print ''
+        game_time_zero = pygame.time.get_ticks()
+        while race_loop:
+
+            # Prepend global list with tweets
+            tweets = tf.get_tweets()
+            for m in tweets:
+                g_tweet_list.insert(0, m)
+                if g_debug > 0:
+                    print m, '\n'
+
+            # Handle game events
+            for event in pygame.event.get():
+
+                # End game if quit event raises
+                if event.type == pygame.QUIT:
+                    break_loop = True
+                    race_loop = False
+
+                # End game if 'q' or 'esc' key pressed
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                        break_loop = True
+                        race_loop = False
+
+                # Every timer interrupt, tally Tweets and move horses
+                elif event.type == pygame.USEREVENT+1:
+                    score_card = tf.tally_tweets()
+                    for i in range(0, g_num_horses):
+                        hp.set_race_value(i, score_card[i] * g_spd_mult)
+                    hp.race()
+                    if hp.is_any_at_far_end():
+                        race_loop = False
+
+            # Update screen
+            g_game_time = pygame.time.get_ticks() - game_time_zero
+            if g_debug == 0 or g_debug == 3:
+                draw_screen()
+                pygame.display.update()
+            fps_clock.tick(g_fps)
+
+        # Stop tracking thread
+        tf.stop_tracking(2)
+
+        # Check if we need to end the game
+        if break_loop:
+            break
+
+        #-------------
+        # Finish Stage
+
+        # Game over. Declare a winner.
+        winner_num = hp.get_winner()
+        winner = None
+        if winner_num >= 0 and winner_num < g_num_horses:
+            winner = g_terms[winner_num]
+            msg = 'Race ' + str(g_race_number) + ': ' + \
+                                TWEET_WINNER + ' ' + winner
+            tf.tweet(msg)
+            if g_debug > 0:
+                print '-------'
+                print 'Finish!'
+                print '-------'
+                print 'The winner is ', winner
+        else:
+            msg = 'Race ' + str(g_race_number) + ': ' + TWEET_NO_WINNER
+            tf.tweet(msg)
+            if g_debug > 0:
+                print ''
+                print '-------'
+                print 'Finish!'
+                print '-------'
+                print 'No winner. All the horses suck.'
+
+        # Display winner and wait for next game
+        finish_loop = True
+        game_time_zero = pygame.time.get_ticks() + (g_reset_time * 1000)
+        while finish_loop:
+
+            # Handle game events
+            for event in pygame.event.get():
+
+                # End game if quit event raises
+                if event.type == pygame.QUIT:
+                    break_loop = True
+                    finish_loop = False
+
+                # End game if 'q' or 'esc' key pressed
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                        break_loop = True
+                        finish_loop = False
+
+            # Update countdown timer
+            g_game_time = game_time_zero - pygame.time.get_ticks()
+            if g_game_time <= 0:
+                finish_loop = False
+                break
+
+            # Update screen
+            if g_debug == 0 or g_debug == 3:
+                draw_finish_screen(winner)
+                pygame.display.update()
+            fps_clock.tick(g_fps)
+
+        # Check if we need to end the game
+        if break_loop:
+            break
+
+    # Tweet that we are shutting down
+    msg = 'Race ' + str(g_race_number) + ': ' + TWEET_QUIT
+    tf.tweet(msg)
 
     # Clean up Twitter feed and pygame
     time.sleep(1) # Needed to let threads close to avoid Exception being thrown
     pygame.quit()
+    del tf
 
 # Run main
 main()
