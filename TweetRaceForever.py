@@ -47,6 +47,7 @@ SETTINGS_SPD_MULT = 'spd_mult'
 SETTINGS_FPS = 'fps'
 SETTINGS_HORSE_TICK = 'horse_tick'
 SETTINGS_DEBUG = 'debug'
+SETTINGS_RESET_TIME = 'reset_time'
 TWITTER_SECTION = 'twitter_auth'
 TWITTER_ARGS = ['app_key', 'app_secret', 'oauth_token', 'oauth_token_secret']
 
@@ -85,6 +86,7 @@ g_scope = None
 g_led_display = None
 g_tweet_list = []
 g_race_number = None
+g_reset_time = None
 
 #-----------------------------------------------------------------------------
 # Functions
@@ -102,6 +104,7 @@ def config_params():
     global g_num_horses
     global g_debug
     global g_twitter_auth
+    global g_reset_time
 
     # Open text file
     config = ConfigParser.RawConfigParser()
@@ -114,11 +117,11 @@ def config_params():
     # Read in game settings
     g_handle = config.get(SETTINGS_SECTION, SETTINGS_HANDLE)
     g_max_terms = int(config.get(SETTINGS_SECTION, SETTINGS_MAX_TERMS))
-    g_num_horses = len(g_terms)
     g_spd_mult = int(config.get(SETTINGS_SECTION, SETTINGS_SPD_MULT))
     g_fps = int(config.get(SETTINGS_SECTION, SETTINGS_FPS))
     g_horse_tick = int(config.get(SETTINGS_SECTION, SETTINGS_HORSE_TICK))
     g_debug = int(config.get(SETTINGS_SECTION, SETTINGS_DEBUG))
+    g_reset_time = int(config.get(SETTINGS_SECTION, SETTINGS_RESET_TIME))
 
 # Read race number from file, increment it, write it back
 def update_race_number():
@@ -200,8 +203,14 @@ def draw_starting_screen():
     title2 = "Tweet Race"
     text_title_1 = font_title_1.render(title1,1,BLACK)
     text_title_2 = font_title_2.render(title2,1,BLACK)
-    g_scope.screen.blit(text_title_1, (40, 25))
-    g_scope.screen.blit(text_title_2, (130, 70))
+    title_1_pos = text_title_1.get_rect()
+    title_1_pos.centerx = rect_bg.centerx
+    title_1_pos.top = 25
+    title_2_pos = text_title_2.get_rect()
+    title_2_pos.centerx = rect_bg.centerx
+    title_2_pos.top = 70
+    g_scope.screen.blit(text_title_1, title_1_pos)
+    g_scope.screen.blit(text_title_2, title_2_pos)
 
     # Draw game mode
     mode_str = font_mode.render('Starting Gate',1,BLACK)
@@ -225,6 +234,100 @@ def draw_starting_screen():
             ent_str = ''.join([ent_str, g_terms[i]])
         ent_disp = font_ent.render(ent_str,1,BLACK)
         g_scope.screen.blit(ent_disp, (40, 390 + (i * 30)))
+
+# Handle graphics on the screen
+def draw_finish_screen(winner=None):
+
+    global g_terms
+    global g_scope
+
+    # Create fonts
+    font_mode = pygame.font.Font(None, 68)
+    font_title_1 = pygame.font.Font(None, 68)
+    font_title_2 = pygame.font.Font(None, 68)
+    font_winner_1 = pygame.font.Font(None, 36)
+    font_winner_2 = pygame.font.Font(None, 48)
+    font_next = pygame.font.Font(None, 36)
+    font_timer = pygame.font.Font(None, 96)
+
+    # Create background
+    rect_bg = pygame.draw.rect(g_scope.screen, BLACK, \
+                                                    (0, 0, 540, 960), 0)
+    rect_title = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 20, 500, 100), 0)
+    rect_game_mode = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 140, 500, 60), 0)
+    rect_winner = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 220, 500, 200), 0)
+    rect_next = pygame.draw.rect(g_scope.screen, WHITE, \
+                                                    (20, 440, 500, 140), 0)
+    
+    # Draw title
+    title1 = "The Great American"
+    title2 = "Tweet Race"
+    text_title_1 = font_title_1.render(title1,1,BLACK)
+    text_title_2 = font_title_2.render(title2,1,BLACK)
+    title_1_pos = text_title_1.get_rect()
+    title_1_pos.centerx = rect_bg.centerx
+    title_1_pos.top = 25
+    title_2_pos = text_title_2.get_rect()
+    title_2_pos.centerx = rect_bg.centerx
+    title_2_pos.top = 70
+    g_scope.screen.blit(text_title_1, title_1_pos)
+    g_scope.screen.blit(text_title_2, title_2_pos)
+
+    # Draw game mode
+    mode_str = font_mode.render('Finish!',1,BLACK)
+    mode_pos = mode_str.get_rect()
+    mode_pos.centerx = rect_bg.centerx
+    mode_pos.top = 140
+    g_scope.screen.blit(mode_str, mode_pos)
+
+    # Draw winner
+    if winner == None:
+        winner_str_1 = 'No one wins.'
+        winner_1 = font_winner_1.render(winner_str_1,1,BLACK)
+        winner_1_pos = winner_1.get_rect()
+        winner_1_pos.centerx = rect_bg.centerx
+        winner_1_pos.top = 240
+        g_scope.screen.blit(winner_1, winner_1_pos)
+    else:
+        winner_str_1 = 'And the winner is:'
+        winner_1 = font_winner_1.render(winner_str_1,1,BLACK)
+        winner_2 = font_winner_2.render(winner,1,BLACK)
+        winner_2_pos = winner_2.get_rect()
+        winner_2_pos.centerx = rect_bg.centerx
+        winner_2_pos.top = 290
+        g_scope.screen.blit(winner_1, (40, 240))
+        g_scope.screen.blit(winner_2, winner_2_pos)
+
+    # Display timer for next game
+    next_str = font_next.render('Next game in:',1,BLACK)
+    if g_game_time <= 0:
+        game_time_str = '00:00:00'
+    else:
+        game_time_min = g_game_time / 60000
+        game_time_sec = (g_game_time - (game_time_min * 60000)) / 1000
+        game_time_ms = (g_game_time - (game_time_min * 60000) - \
+                                        (game_time_sec * 1000)) / 10
+        if game_time_min < 10:
+            game_time_str = '0' + str(game_time_min)
+        else:
+            game_time_str = str(game_time_min)
+        if game_time_sec < 10:
+            game_time_str = game_time_str + ':0' + str(game_time_sec)
+        else:
+            game_time_str = game_time_str + ':' + str(game_time_sec)
+        if game_time_ms < 10:
+            game_time_str = game_time_str + ':0' + str(game_time_ms)
+        else:
+            game_time_str = game_time_str + ':' + str(game_time_ms)
+    text_timer = font_timer.render(game_time_str, 1 ,RED)
+    timer_pos = text_timer.get_rect()
+    timer_pos.centerx = rect_bg.centerx
+    timer_pos.top = 490
+    g_scope.screen.blit(next_str, (40, 460))
+    g_scope.screen.blit(text_timer, timer_pos)
 
 # Test if a term is already in the term list
 def is_in_terms(entry):
@@ -268,8 +371,14 @@ def draw_screen():
     title2 = "Tweet Race"
     text_title_1 = font_title_1.render(title1,1,BLACK)
     text_title_2 = font_title_2.render(title2,1,BLACK)
-    g_scope.screen.blit(text_title_1, (40, 25))
-    g_scope.screen.blit(text_title_2, (40, 70))
+    title_1_pos = text_title_1.get_rect()
+    title_1_pos.centerx = rect_bg.centerx
+    title_1_pos.top = 25
+    title_2_pos = text_title_2.get_rect()
+    title_2_pos.centerx = rect_bg.centerx
+    title_2_pos.top = 70
+    g_scope.screen.blit(text_title_1, title_1_pos)
+    g_scope.screen.blit(text_title_2, title_2_pos)
 
     # Draw game mode
     mode_str = font_mode.render('Race!',1,BLACK)
@@ -362,6 +471,7 @@ def main():
     global g_scope
     global g_led_display
     global g_tweet_list
+    global g_reset_time
 
     # Read in parameters file and configure game
     config_params()
@@ -482,6 +592,7 @@ def main():
         print 'Start game'
         print 'Contestants: ', g_terms
         print ''
+    game_time_zero = pygame.time.get_ticks()
     while race_loop:
 
         # Prepend global list with tweets
@@ -513,7 +624,7 @@ def main():
                     race_loop = False
 
         # Update screen
-        g_game_time = pygame.time.get_ticks()
+        g_game_time = pygame.time.get_ticks() - game_time_zero
         if g_debug == 0 or g_debug == 3:
             draw_screen()
             pygame.display.update()
@@ -526,16 +637,18 @@ def main():
     # Finish Stage
 
     # Game over. Declare a winner.
-    winner = hp.get_winner()
-    if winner >= 0 and winner < g_num_horses:
+    winner_num = hp.get_winner()
+    winner = None
+    if winner_num >= 0 and winner_num < g_num_horses:
+        winner = g_terms[winner_num]
         msg = 'Race ' + str(g_race_number) + ': ' + \
-                            TWEET_WINNER + ' ' + g_terms[winner]
+                            TWEET_WINNER + ' ' + winner
         tf.tweet(msg)
         if g_debug > 0:
             print '-------'
             print 'Finish!'
             print '-------'
-            print 'The winner is ', g_terms[winner]
+            print 'The winner is ', winner
     else:
         msg = 'Race ' + str(g_race_number) + ': ' + TWEET_NO_WINNER
         tf.tweet(msg)
@@ -546,7 +659,37 @@ def main():
             print 'No winner. All the horses suck.'
     print ''
 
+    # Display winner and wait for next game
+    finish_loop = True
+    game_time_zero = pygame.time.get_ticks() + (g_reset_time * 1000)
+    while finish_loop:
+
+        # Handle game events
+        for event in pygame.event.get():
+
+            # End game if quit event raises
+            if event.type == pygame.QUIT:
+                finish_loop = False
+
+            # End game if 'q' or 'esc' key pressed
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
+                    finish_loop = False
+
+        # Update countdown timer
+        g_game_time = game_time_zero - pygame.time.get_ticks()
+        if g_game_time <= 0:
+            finish_loop = False
+            break
+
+        # Update screen
+        if g_debug == 0 or g_debug == 3:
+            draw_finish_screen(winner)
+            pygame.display.update()
+        fps_clock.tick(g_fps)
+
     # Clean up Twitter feed and pygame
+    time.sleep(1) # Needed to let threads close to avoid Exception being thrown
     pygame.quit()
 
 # Run main

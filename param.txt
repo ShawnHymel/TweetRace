@@ -21,6 +21,7 @@
 ;           4 = no motors/LEDs, no monitor, motor/LED debug
 ;           5 = no motors/LEDs, no monitor, no motor/LED debug
 ;           Note: for debug 2+, need to config and recompile hoss_system.h
+; reset_time: number of seconds to wait before next game begins
 ;-----------------------------------------------------------------------------
 [game_settings]
 handle = @Gr8AmTweetRace
@@ -30,6 +31,7 @@ spd_mult = 100
 fps = 5
 horse_tick = 2000
 debug = 3
+reset_time = 10
 
 ;-----------------------------------------------------------------------------
 ; Twitter Authentication
